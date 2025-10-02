@@ -1,0 +1,22 @@
+<!-- give_pulse_app/templates/login.html -->
+<!DOCTYPE html>
+<html>
+  <body>
+    {% include "_nav.html" %}
+    <h1>Login</h1>
+
+    {% if messages %}
+      <ul>
+        {% for m in messages %}
+          <li>{{ m }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Login</button>
+    </form>
+  </body>
+</html>

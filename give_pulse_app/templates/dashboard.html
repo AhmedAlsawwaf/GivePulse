@@ -1,0 +1,41 @@
+<!-- give_pulse_app/templates/dashboard.html -->
+<!DOCTYPE html>
+<html>
+  <body>
+    {% include "_nav.html" %}
+    <h1>Dashboard</h1>
+
+    {% if messages %}
+      <ul>
+        {% for m in messages %}
+          <li>{{ m }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if user %}
+      <p>Hello, {{ user.first_name }} {{ user.last_name }} ({{ user.role }})</p>
+      <p>Email: {{ user.email }}</p>
+      <p>Phone: {{ user.phone }}</p>
+
+      {% if user.donor %}
+        <h2>Your Donor Profile</h2>
+        <p>ABO/Rh: {{ user.donor.abo }}{{ user.donor.rh }}</p>
+        <p>City: {{ user.donor.city }}</p>
+        {% if user.donor.profile_picture %}
+          <img src="{{ user.donor.profile_picture.url }}" alt="Avatar" width="160" height="160">
+        {% else %}
+          <p>No profile picture uploaded.</p>
+        {% endif %}
+      {% endif %}
+
+      {% if user.staff %}
+        <h2>Your Staff Profile</h2>
+        <p>Hospital: {{ user.staff.hospital }}</p>
+        <p>Verified: {{ user.staff.is_verified }}</p>
+      {% endif %}
+    {% else %}
+      <p>Please <a href="{% url 'login' %}">login</a>.</p>
+    {% endif %}
+  </body>
+</html>

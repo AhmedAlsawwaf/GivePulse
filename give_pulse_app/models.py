@@ -167,7 +167,6 @@ class BloodRequest(models.Model):
 
     def clean(self):
         super().clean()
-        # keep city consistent with hospital.city
         if self.hospital_id and self.city_id and self.hospital.city_id != self.city_id:
             raise ValidationError({"city": "City must match the hospital's city."})
     class Meta:

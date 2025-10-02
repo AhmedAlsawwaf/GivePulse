@@ -1,10 +1,8 @@
 import re
-from typing import Optional
 from .validators import validate_password_strength
 import bcrypt
 from django.core.exceptions import ValidationError
 from django.db import models
-from .models import *
 
 BCRYPT_PREFIX_RE = re.compile(r"^\$2[aby]\$")
 
@@ -23,6 +21,7 @@ def check_password(raw_password: str, hashed: str) -> bool:
 
 class UserManager(models.Manager):
     def create_user(self, *, first_name, last_name, email, password, phone=None, role="guest"):
+        from .models import User
         validate_password_strength(password)
         user = User(
             first_name=first_name.strip(),
@@ -55,6 +54,7 @@ class UserManager(models.Manager):
 
 class StaffManager(models.Manager):
     def create_staff(self, *, user_id: int, hospital_id: int, role: str = "staff", is_verified: bool = False):
+        from .models import Staff
         staff = Staff(user_id=user_id, hospital_id=hospital_id, role=role, is_verified=is_verified)
         staff.full_clean()
         staff.save()
@@ -73,6 +73,7 @@ class DonorManager(models.Manager):
         eligibility_consent: bool = False,
         last_donation=None,
     ):
+        from .models import City,Donor
         city = City.objects.get(id=city_id)
         donor = Donor(
             user_id=user_id,
@@ -101,7 +102,7 @@ class BloodRequestManager(models.Manager):
         notes: str = "",
         status: str = "open",
     ):
-
+        from .models import City,Hospital,BloodRequest
         try:
             hospital = Hospital.objects.get(id=hospital_id)
         except Hospital.DoesNotExist:
