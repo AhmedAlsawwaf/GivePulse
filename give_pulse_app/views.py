@@ -3,11 +3,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_GET
 from django.http import JsonResponse
 from django.contrib import messages
-
-<<<<<<< HEAD
-def index(request):
-    return render(request,"index.html")
-=======
 from .forms import LoginForm, DonorRegistrationForm, StaffRegistrationForm
 from .models import User,Hospital
 
@@ -91,4 +86,3 @@ def dashboard(request):
     else:
         return redirect("login")
     return render(request, "dashboard.html", {"user": user})
->>>>>>> 168abeb (Implement user authentication and registration forms, add navigation and dashboard templates)
