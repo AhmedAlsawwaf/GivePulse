@@ -1,32 +1,12 @@
 import re
 from typing import Optional
-
+from .validators import validate_password_strength
 import bcrypt
 from django.core.exceptions import ValidationError
 from django.db import models
 from .models import *
 
-NAME_RE = re.compile(r"^[A-Za-z][A-Za-z\s'\-]{1,149}$")  
-EMAIL_RE = re.compile(r"^(?=.{6,254}$)[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$")
-PHONE_RE = re.compile(r"^\+?[0-9]{7,15}$")
-PASSWORD_RE = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,128}$")
 BCRYPT_PREFIX_RE = re.compile(r"^\$2[aby]\$")
-
-def _validate_name(label: str, value: str) -> None:
-    if not value or not NAME_RE.fullmatch(value.strip()):
-        raise ValidationError({label: f"Invalid {label.replace('_', ' ')}."})
-
-def _validate_email(email: str) -> None:
-    if not email or not EMAIL_RE.fullmatch(email.strip()):
-        raise ValidationError({"email": "Invalid email address."})
-
-def _validate_phone(phone: Optional[str]) -> None:
-    if phone and not PHONE_RE.fullmatch(phone.strip()):
-        raise ValidationError({"phone": "Invalid phone number."})
-
-def _validate_password(password: str) -> None:
-    if not password or not PASSWORD_RE.fullmatch(password):
-        raise ValidationError({"password": "Min 8 chars, include upper/lower/digit/special."})
 
 def _hash_password_if_needed(raw_or_hash: str) -> str:
     if BCRYPT_PREFIX_RE.match(raw_or_hash or ""):
@@ -41,24 +21,9 @@ def check_password(raw_password: str, hashed: str) -> bool:
     except Exception:
         return False
 
-
 class UserManager(models.Manager):
-    def create_user(
-        self,
-        *,
-        first_name: str,
-        last_name: str,
-        email: str,
-        password: str,
-        phone: str | None = None,
-        role: str = "guest",
-    ):
-        _validate_name("first_name", first_name)
-        _validate_name("last_name", last_name)
-        _validate_email(email)
-        _validate_phone(phone)
-        _validate_password(password)
-
+    def create_user(self, *, first_name, last_name, email, password, phone=None, role="guest"):
+        validate_password_strength(password)
         user = User(
             first_name=first_name.strip(),
             last_name=last_name.strip(),
@@ -71,10 +36,13 @@ class UserManager(models.Manager):
         user.save()
         return user
 
-    def set_password(self, user_obj, new_password: str) -> None:
-        _validate_password(new_password)
+    def set_password(self, user_obj, new_password: str):
+        validate_password_strength(new_password)
         user_obj.password = _hash_password_if_needed(new_password)
-        user_obj.save(update_fields=["password", "updated_at"] if hasattr(user_obj, "updated_at") else ["password"])
+        fields = ["password"]
+        if hasattr(user_obj, "updated_at"):
+            fields.append("updated_at")
+        user_obj.save(update_fields=fields)
 
     def authenticate(self, *, email: str, password: str):
         email_norm = (email or "").strip().lower()

@@ -1,6 +1,9 @@
 from __future__ import annotations
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
+from .validators import validate_person_name, validate_phone, validate_profile_image
+from .uploads import donor_avatar_path
 from .managers import UserManager, StaffManager, DonorManager,BloodRequestManager
 # Choices :
 class Role(models.TextChoices):
@@ -72,10 +75,10 @@ class Hospital(models.Model):
         return f"{self.name} ({self.city})"
 
 class User(models.Model):
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150)
+    first_name = models.CharField(max_length=150, validators=[validate_person_name])
+    last_name = models.CharField(max_length=150, validators=[validate_person_name])
     email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=20, blank=True)
+    phone = models.CharField(max_length=20, blank=True, validators=[validate_phone])
     password = models.CharField(max_length=128)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.GUEST)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -108,6 +111,12 @@ class Staff(models.Model):
 
 class Donor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="donor")
+    profile_picture = models.ImageField(
+        upload_to=donor_avatar_path, 
+        blank=True,
+        validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png", "webp"]),validate_profile_image,],
+        help_text="JPEG/PNG/WEBP, ≤2MB, min 128x128"
+    )
     abo = models.CharField(max_length=2, choices=BloodType.choices)
     rh = models.CharField(max_length=1, choices=RhType.choices)
     city = models.ForeignKey(City, on_delete=models.PROTECT, related_name="donors")
@@ -117,7 +126,20 @@ class Donor(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = DonorManager()
-
+    
+    def save(self, *args, **kwargs):
+        try:
+            old = type(self).objects.get(pk=self.pk)
+        except type(self).DoesNotExist:
+            old = None
+        super().save(*args, **kwargs)
+        if old and old.profile_picture and old.profile_picture != self.profile_picture:
+            old.profile_picture.delete(save=False)
+    
+    def delete(self, *args, **kwargs):
+        if self.profile_picture:
+            self.profile_picture.delete(save=False)
+        super().delete(*args, **kwargs)
     class Meta:
         indexes = [
             models.Index(fields=["city"]),
@@ -143,6 +165,11 @@ class BloodRequest(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     objects = BloodRequestManager()
 
+    def clean(self):
+        super().clean()
+        # keep city consistent with hospital.city
+        if self.hospital_id and self.city_id and self.hospital.city_id != self.city_id:
+            raise ValidationError({"city": "City must match the hospital's city."})
     class Meta:
         indexes = [
             models.Index(fields=["status"]),
@@ -178,7 +205,11 @@ class DonationAppointment(models.Model):
     window_start = models.DateTimeField()
     window_end = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
-
+    
+    def clean(self):
+        super().clean()
+        if self.window_end <= self.window_start:
+            raise ValidationError({"window_end": "End must be after start."})
     def __str__(self):
         return f"Appointment for match {self.match_id}"
 
