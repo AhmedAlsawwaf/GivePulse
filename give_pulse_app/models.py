@@ -1,6 +1,7 @@
 from __future__ import annotations
 from django.db import models
-
+from django.core.exceptions import ValidationError
+from .managers import UserManager, StaffManager, DonorManager,BloodRequestManager
 # Choices :
 class Role(models.TextChoices):
     GUEST = "guest", "Guest"
@@ -32,10 +33,31 @@ class MatchStatus(models.TextChoices):
     DONATED = "donated", "Donated"
 
 # Models
+class Governorate(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
+class City(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    governorate = models.ForeignKey(Governorate, on_delete=models.PROTECT, related_name="cities",null=True,blank=True)
+
+    class Meta:
+        ordering = ["name"]
+        indexes = [
+            models.Index(fields=["governorate"]),
+        ]
+
+    def __str__(self):
+        return f"{self.name} ({self.governorate})"
 class Hospital(models.Model):
     name = models.CharField(max_length=255)
-    city = models.CharField(max_length=100)
-    district = models.CharField(max_length=100, blank=True)
+    city = models.ForeignKey(City, on_delete=models.PROTECT, related_name="hospitals")
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -46,10 +68,8 @@ class Hospital(models.Model):
             models.Index(fields=["city"]),
             models.Index(fields=["is_verified"]),
         ]
-
     def __str__(self):
         return f"{self.name} ({self.city})"
-
 
 class User(models.Model):
     first_name = models.CharField(max_length=150)
@@ -60,7 +80,7 @@ class User(models.Model):
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.GUEST)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+    objects = UserManager()
     class Meta:
         indexes = [
             models.Index(fields=["email"]),
@@ -76,6 +96,7 @@ class Staff(models.Model):
     role = models.CharField(max_length=50, default="staff")  
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    objects = StaffManager()
 
     class Meta:
         indexes = [
@@ -89,13 +110,13 @@ class Donor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="donor")
     abo = models.CharField(max_length=2, choices=BloodType.choices)
     rh = models.CharField(max_length=1, choices=RhType.choices)
-    city = models.CharField(max_length=100)
-    district = models.CharField(max_length=100, blank=True)
+    city = models.ForeignKey(City, on_delete=models.PROTECT, related_name="donors")
     last_donation = models.DateField(null=True, blank=True)
     eligibility_consent = models.BooleanField(default=False)
     public_alias = models.CharField(max_length=50, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    objects = DonorManager()
 
     class Meta:
         indexes = [
@@ -114,13 +135,13 @@ class BloodRequest(models.Model):
     units_fulfilled = models.PositiveIntegerField(default=0)
     abo = models.CharField(max_length=2, choices=BloodType.choices)
     rh = models.CharField(max_length=1, choices=RhType.choices)
-    city = models.CharField(max_length=100)
-    district = models.CharField(max_length=100, blank=True)
+    city = models.ForeignKey(City, on_delete=models.PROTECT, related_name="blood_requests")
     deadline_at = models.DateTimeField()
     status = models.CharField(max_length=12, choices=RequestStatus.choices, default=RequestStatus.OPEN)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    objects = BloodRequestManager()
 
     class Meta:
         indexes = [
