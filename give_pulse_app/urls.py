@@ -11,4 +11,6 @@ urlpatterns = [
     path("hospitals/", views.hospitals_by_city, name="api_hospitals_by_city"),
     
     path("dashboard/", views.dashboard, name="dashboard"),
+    
+    path("requests/new/", views.create_blood_request, name="blood_request_new"),
 ]

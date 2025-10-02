@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
-from .models import User, Donor, Staff, City, Hospital, BloodType, RhType
+from .models import User, Donor, Staff, City, Hospital, BloodType, RhType, BloodRequest
 from .validators import validate_password_strength
 
 class LoginForm(forms.Form):
@@ -38,7 +39,6 @@ class DonorRegistrationForm(forms.Form):
     password1  = forms.CharField(label="Password", widget=forms.PasswordInput)
     password2  = forms.CharField(label="Confirm password", widget=forms.PasswordInput)
 
-    # Donor fields
     abo  = forms.ChoiceField(choices=BloodType.choices, label="ABO")
     rh   = forms.ChoiceField(choices=RhType.choices, label="Rh")
     city = forms.ModelChoiceField(queryset=City.objects.all(), label="City")
@@ -70,17 +70,15 @@ class DonorRegistrationForm(forms.Form):
     def save(self):
         cd = self.cleaned_data
 
-        # Uses imported User model (must be imported as shown above)
         user = User.objects.create_user(
             first_name=cd["first_name"],
             last_name=cd["last_name"],
             email=cd["email"],
-            password=cd["password1"],   # raw password; manager will hash
+            password=cd["password1"], 
             phone=cd.get("phone") or "",
             role="donor",
         )
 
-        # Uses imported Donor model (must be imported as shown above)
         donor = Donor.objects.create_donor(
             user_id=user.id,
             abo=cd["abo"],
@@ -99,7 +97,6 @@ class DonorRegistrationForm(forms.Form):
 
 
 class StaffRegistrationForm(forms.Form):
-    # User fields
     first_name = forms.CharField(max_length=150, label="First name")
     last_name  = forms.CharField(max_length=150, label="Last name")
     email      = forms.EmailField(label="Email")
@@ -108,14 +105,12 @@ class StaffRegistrationForm(forms.Form):
     password1  = forms.CharField(label="Password", widget=forms.PasswordInput)
     password2  = forms.CharField(label="Confirm password", widget=forms.PasswordInput)
 
-    # Dependent selects
     city     = forms.ModelChoiceField(queryset=City.objects.all(), label="City", required=True)
     hospital = forms.ModelChoiceField(queryset=Hospital.objects.none(), label="Hospital", required=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # If the user is POSTing a chosen city, pre-filter so the posted hospital choice validates
         data_city = None
         if "city" in self.data:
             try:
@@ -142,7 +137,6 @@ class StaffRegistrationForm(forms.Form):
             raise ValidationError({"password2": "Passwords do not match."})
         validate_password_strength(p1)
 
-        # Cross-check: hospital belongs to city
         city = cleaned.get("city")
         hospital = cleaned.get("hospital")
         if city and hospital and hospital.city_id != city.id:
@@ -167,3 +161,66 @@ class StaffRegistrationForm(forms.Form):
             is_verified=False,
         )
         return user, staff
+
+class BloodRequestForm(forms.Form):
+    abo = forms.ChoiceField(choices=BloodType.choices, label="ABO")
+    rh = forms.ChoiceField(choices=RhType.choices, label="Rh")
+    units_requested = forms.IntegerField(min_value=1, label="Units requested")
+    deadline_at = forms.DateTimeField(
+        label="Deadline",
+        widget=forms.DateTimeInput(attrs={"type": "datetime-local"}),
+        input_formats=["%Y-%m-%dT%H:%M"],
+    )
+    notes = forms.CharField(widget=forms.Textarea, required=False, label="Notes")
+
+    def __init__(self, *args, staff: Staff | None = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if staff is None:
+            raise ValueError("BloodRequestForm requires a 'staff' instance.")
+        self.staff = staff
+
+    def clean_deadline_at(self):
+        dt = self.cleaned_data["deadline_at"]
+        if timezone.is_naive(dt):
+            dt = timezone.make_aware(dt, timezone.get_current_timezone())
+        if dt <= timezone.now():
+            raise ValidationError("Deadline must be in the future.")
+        return dt
+
+    def clean(self):
+        cleaned = super().clean()
+        return cleaned
+
+    def save(self) -> BloodRequest:
+        cd = self.cleaned_data
+        hospital = self.staff.hospital
+        city = hospital.city
+
+        if hasattr(BloodRequest.objects, "create_request"):
+            br = BloodRequest.objects.create_request(
+                hospital_id=hospital.id,
+                created_by_id=self.staff.id,
+                units_requested=cd["units_requested"],
+                abo=cd["abo"],
+                rh=cd["rh"],
+                city_id=city.id,
+                deadline_at=cd["deadline_at"],
+                notes=cd.get("notes", ""),
+                status="open",
+            )
+            return br
+
+        br = BloodRequest(
+            hospital=hospital,
+            created_by=self.staff,
+            units_requested=cd["units_requested"],
+            abo=cd["abo"],
+            rh=cd["rh"],
+            city=city,
+            deadline_at=cd["deadline_at"],
+            notes=cd.get("notes", ""),
+            status="open",
+        )
+        br.full_clean()
+        br.save()
+        return br

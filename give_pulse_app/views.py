@@ -1,11 +1,9 @@
 from __future__ import annotations
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_GET
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.contrib import messages
-
-
-from .forms import LoginForm, DonorRegistrationForm, StaffRegistrationForm
+from .forms import LoginForm, DonorRegistrationForm, StaffRegistrationForm, BloodRequestForm
 from .models import User,Hospital
 
 def _login(request, user: User):
@@ -89,3 +87,39 @@ def dashboard(request):
         return redirect("login")
     return render(request, "dashboard.html", {"user": user})
 
+def create_blood_request(request: HttpRequest) -> HttpResponse:
+    uid = request.session.get("user_id")
+    if not uid:
+        messages.error(request, "Please log in.")
+        return redirect("login")
+
+    try:
+        user = User.objects.get(pk=uid)
+    except User.DoesNotExist:
+        messages.error(request, "Invalid session. Please log in again.")
+        return redirect("login")
+
+    if not hasattr(user, "staff"):
+        messages.error(request, "Only staff can create blood requests.")
+        return redirect("home")
+
+    staff = user.staff
+    if not staff.hospital_id:
+        messages.error(request, "Your staff profile has no hospital assigned.")
+        return redirect("home")
+
+    if request.method == "POST":
+        form = BloodRequestForm(request.POST, staff=staff)
+        if form.is_valid():
+            br = form.save()
+            messages.success(request, f"Blood request #{br.pk} created.")
+            return redirect("dashboard")
+    else:
+        form = BloodRequestForm(staff=staff)
+
+    context = {
+        "form": form,
+        "hospital": staff.hospital,
+        "city": staff.hospital.city,
+    }
+    return render(request, "blood_request_new.html", context)
