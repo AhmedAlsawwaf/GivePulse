@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    {% include "_nav.html" %}
+    <h1>Dashboard</h1>
+
+    {% if messages %}
+      <ul>
+        {% for m in messages %}
+          <li>{{ m }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if user %}
+      <section>
+        <p>Hello, {{ user.first_name }} {{ user.last_name }} ({{ user.role }})</p>
+        <p>Email: {{ user.email }}</p>
+        <p>Phone: {{ user.phone|default:"—" }}</p>
+      </section>
+
+      {% if user.donor %}
+        <hr>
+        <section>
+          <h2>Your Donor Profile</h2>
+          <p>ABO/Rh: {{ user.donor.abo }}{{ user.donor.rh }}</p>
+          <p>City: {{ user.donor.city }}</p>
+          {% if user.donor.profile_picture %}
+            <p><img src="{{ user.donor.profile_picture.url }}" alt="Avatar" width="160" height="160"></p>
+          {% else %}
+            <p>No profile picture uploaded.</p>
+          {% endif %}
+        </section>
+      {% endif %}
+
+      {% if user.staff %}
+        <hr>
+        <section>
+          <h2>Your Staff Profile</h2>
+          <p>Hospital: {{ user.staff.hospital }}</p>
+          <p>Verified: {{ user.staff.is_verified }}</p>
+
+          {% if user.staff.is_verified %}
+            <p><a href="{% url 'blood_request_new' %}">Create Blood Request</a></p>
+          {% else %}
+            <p><em>Your account must be verified to create requests.</em></p>
+          {% endif %}
+        </section>
+      {% endif %}
+    {% else %}
+      <p>Please <a href="{% url 'login' %}">login</a>.</p>
+    {% endif %}
+  </body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    {% include "_nav.html" %}
+    <h1>Home</h1>
+
+    {% if messages %}
+      <ul>
+        {% for m in messages %}
+          <li>{{ m }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if user %}
+      <p>Welcome back, {{ user.first_name }} ({{ user.role }})</p>
+    {% else %}
+      <p>You are not logged in.</p>
+    {% endif %}
+  </body>
+</html>

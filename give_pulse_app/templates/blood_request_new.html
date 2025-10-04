@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    {% include "_nav.html" %}
+    <h1>Create Blood Request</h1>
+
+    {% if messages %}
+      <ul>
+        {% for m in messages %}<li>{{ m }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <p><b>Hospital:</b> {{ hospital }}</p>
+    <p><b>City:</b> {{ city }}</p>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Create Request</button>
+    </form>
+
+    <p><small>Note: Hospital and city are taken from your staff profile.</small></p>
+  </body>
+</html>

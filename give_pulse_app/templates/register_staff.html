@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    {% include "_nav.html" %}
+    <h1>Register (Staff)</h1>
+
+    {% if messages %}
+      <ul>
+        {% for m in messages %}<li>{{ m }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <form method="post" id="staff-register-form">
+      {% csrf_token %}
+      <p>{{ form.first_name.label_tag }} {{ form.first_name }}</p>
+      <p>{{ form.last_name.label_tag }} {{ form.last_name }}</p>
+      <p>{{ form.email.label_tag }} {{ form.email }}</p>
+      <p>{{ form.phone.label_tag }} {{ form.phone }}</p>
+      <p>{{ form.password1.label_tag }} {{ form.password1 }}</p>
+      <p>{{ form.password2.label_tag }} {{ form.password2 }}</p>
+
+      <p>{{ form.city.label_tag }} {{ form.city }}</p>
+      <p>
+        {{ form.hospital.label_tag }}
+        {{ form.hospital }}
+        <span id="hospitals-loading" style="display:none;">Loading...</span>
+        <span id="hospitals-empty" style="display:none;">No hospitals found for this city.</span>
+      </p>
+
+      <button type="submit">Create Staff Account</button>
+    </form>
+
+    <script>
+      (function () {
+        const citySelect = document.getElementById("id_city");
+        const hospitalSelect = document.getElementById("id_hospital");
+        const loading = document.getElementById("hospitals-loading");
+        const emptyMsg = document.getElementById("hospitals-empty");
+
+        function clearHospitals() {
+          hospitalSelect.innerHTML = "";
+          hospitalSelect.disabled = true;
+          emptyMsg.style.display = "none";
+        }
+
+        function populateHospitals(items) {
+          hospitalSelect.innerHTML = "";
+          if (!items || !items.length) {
+            hospitalSelect.disabled = true;
+            emptyMsg.style.display = "inline";
+            return;
+          }
+          const ph = document.createElement("option");
+          ph.value = "";
+          ph.textContent = "Select a hospital";
+          hospitalSelect.appendChild(ph);
+
+          for (const item of items) {
+            const opt = document.createElement("option");
+            opt.value = item.id;
+            opt.textContent = item.name;
+            hospitalSelect.appendChild(opt);
+          }
+          hospitalSelect.disabled = false;
+          emptyMsg.style.display = "none";
+        }
+
+        async function fetchHospitals(cityId) {
+          if (!cityId) {
+            clearHospitals();
+            return;
+          }
+          loading.style.display = "inline";
+          clearHospitals();
+          try {
+            const url = "{% url 'api_hospitals_by_city' %}?city_id=" + encodeURIComponent(cityId);
+            const res = await fetch(url, { headers: { "Accept": "application/json" } });
+            const data = await res.json();
+            populateHospitals(data.results || []);
+          } catch (e) {
+            console.error(e);
+            clearHospitals();
+          } finally {
+            loading.style.display = "none";
+          }
+        }
+
+        // On change → fetch hospitals
+        citySelect.addEventListener("change", function () {
+          fetchHospitals(this.value);
+        });
+
+        // On page load, if a city already selected (e.g., after validation error), re-fetch
+        if (citySelect.value) {
+          fetchHospitals(citySelect.value).then(() => {
+            // try to restore previously selected hospital value, if any
+            const prev = "{{ form.hospital.value|default_if_none:'' }}";
+            if (prev) hospitalSelect.value = prev;
+          });
+        } else {
+          clearHospitals();
+        }
+      })();
+    </script>
+  </body>
+</html>
