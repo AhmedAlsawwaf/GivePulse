@@ -1,11 +1,178 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-   Wewwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
-</body>
-</html>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home - GivePulse{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section id="home" class="hero py-5">
+  <div class="container text-center">
+    <h1 class="animate__animated animate__fadeInDown animate__slow mb-3">
+      Connecting Blood Donors with Urgent Requests
+    </h1>
+    <p class="animate__animated animate__fadeInUp animate__delay-1s text-muted">
+      A real-time platform designed to reduce waiting times, match urgent requests,
+      and build a strong community committed to saving lives
+    </p>
+    <div class="mt-4 animate__animated animate__zoomIn animate__delay-2s">
+      <a href="#" class="btn btn-secondary-custom btn-lg me-3">Get Started</a>
+    </div>
+  </div>
+</section>
+
+<!-- Leaderboard Section -->
+<section class="leaderboard py-5 bg-light">
+  <div class="container">
+    <h2 class="text-primary-red text-center mb-4 animate__animated animate__fadeInUp"> Leaderboard</h2>
+    <div class="row">
+      <div class="col-md-6 mb-4 animate__animated animate__fadeInLeft animate__delay-1s">
+        <table class="table table-hover text-center shadow-sm">
+          <thead class="table-success">
+            <tr>
+              <th>Rank</th>
+              <th>Donor Name</th>
+              <th>Donations Count</th>
+              <th>City</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Ahmad</td>
+              <td>5</td>
+              <td>Gaza</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Yahia</td>
+              <td>3</td>
+              <td>Rafah</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Hala</td>
+              <td>2</td>
+              <td>Khan Younis</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Ahmad</td>
+              <td>5</td>
+              <td>Gaza</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Yahia</td>
+              <td>3</td>
+              <td>Rafah</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Hala</td>
+              <td>2</td>
+              <td>Khan Younis</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Ahmad</td>
+              <td>5</td>
+              <td>Gaza</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Yahia</td>
+              <td>3</td>
+              <td>Rafah</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Hala</td>
+              <td>2</td>
+              <td>Khan Younis</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div
+        class="col-md-6 mb-4 d-flex align-items-center justify-content-center animate__animated animate__fadeInRight animate__delay-2s">
+        <img src="{% static 'images/chart.png' %}" alt="Weekly Donations Chart" class="chart-img">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- about Section -->
+<section class="about py-5" id="about">
+  <div class="container text-center animate__animated animate__fadeInUp animate__delay-1s">
+    <h2 class="text-primary-red mb-3">About Us</h2>
+    <p class="lead">
+      GivePulse is an innovative platform designed to connect
+      <span class="text-primary-red fw-bold">blood donors</span>
+      with hospitals and patients in urgent need. We reduce waiting times,
+      raise awareness about blood donation, and build a caring community
+      committed to saving lives.
+    </p>
+    <a href="{% url 'about' %}" class="btn btn-secondary-custom mt-3 nimate__infinite">Learn More</a>
+  </div>
+</section>
+
+<!-- Success Stories Section -->
+<section class="success-stories py-5 bg-light" id="success">
+  <div class="container">
+    <h2 class="text-primary-red text-center mb-5 animate__animated animate__fadeInDown"> Success Stories</h2>
+    <div class="row g-4">
+
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 animate__animated animate__fadeInUp">
+          <div class="card-body text-center">
+            <img src="https://i.pravatar.cc/80?img=12" alt="Ahmed" class="rounded-circle mb-3">
+            <h5 class="text-secondary-green mb-3">Ahmed’s Story</h5>
+            <p>
+              Ahmed’s father needed an urgent blood transfusion.
+              Thanks to <strong>GivePulse</strong>, donors in Gaza responded within minutes,
+              and his life was saved just in time.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 animate__animated animate__fadeInUp animate__delay-1s">
+          <div class="card-body text-center">
+            <img src="https://i.pravatar.cc/80?img=25" alt="Lina" class="rounded-circle mb-3">
+            <h5 class="text-secondary-green mb-3">Lina’s Story</h5>
+            <p>
+              Lina shared how her brother’s rare blood type was matched instantly.
+              The platform connected them with verified donors, avoiding delays in treatment.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 animate__animated animate__fadeInUp animate__delay-2s">
+          <div class="card-body text-center">
+            <img src="https://i.pravatar.cc/80?img=36" alt="Yousef" class="rounded-circle mb-3">
+            <h5 class="text-secondary-green mb-3">Yousef’s Story</h5>
+            <p>
+              After a car accident, Yousef urgently needed blood.
+              With <strong>GivePulse</strong>, he was connected to nearby donors immediately,
+              giving him a second chance at life.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Share Your Story Button -->
+    <div class="text-center mt-5 animate__animated animate__fadeInUp animate__delay-3s">
+      <a href="{% url 'contact' %}"
+        class="btn btn-secondary-custom btn-lg animate__animated animate__pulse animate__infinite">
+        Share Your Story
+      </a>
+      <p class="mt-2 text-muted">We’d love to hear how GivePulse helped you or your loved ones.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}
