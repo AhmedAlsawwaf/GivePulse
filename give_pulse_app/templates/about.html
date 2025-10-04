@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About Us - GivePulse{% endblock %}
+
+{% block content %}
+<section class="about py-5" id="about">
+  <div class="container">
+    <h2 class="text-primary-red mb-5 text-center animate__animated animate__fadeInDown">
+      About Us
+    </h2>
+    
+    <div class="card shadow-sm mb-4 animate__animated animate__fadeInUp">
+      <div class="card-body text-center">
+        <p class="mb-0">
+          <strong>GivePulse</strong> is an innovative platform designed to connect 
+          <strong>blood donors</strong> with hospitals and patients who are in urgent need.  
+          We aim to save lives by building a direct and reliable bridge between donors and healthcare institutions.
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100 animate__animated animate__zoomIn" style="background-color: var(--secondary-green); color: white;">
+          <div class="card-body">
+            <h4 class="mb-3"> Our Vision</h4>
+            <p>
+              To become the leading platform for blood donation across the Arab world and beyond, 
+              ensuring no patient has to wait for blood in critical times. 
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100 animate__animated animate__zoomIn" style="background-color: var(--light-gray);">
+          <div class="card-body">
+            <h4 class="text-primary-red mb-3"> Our Mission</h4>
+            <ul>
+              <li>Provide <strong>faster donations</strong> through instant alerts and notifications.</li>
+              <li>Ensure <strong>trustworthy donors</strong> with verified profiles.</li>
+              <li>Enable <strong>transparent communication</strong> between hospitals and donors.</li>
+              <li>Maintain a <strong>secure database</strong> for donation history and case management.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="card border-0 shadow-sm h-100 animate__animated animate__fadeInUp">
+          <div class="card-body">
+            <h4 class="text-primary-red mb-3"> Key Features</h4>
+            <div class="row text-center">
+              <div class="col-md-4 mb-3">
+                <div class="p-3 border rounded h-100" style="background-color: var(--secondary-green); color: white;">
+                  <strong>Urgent Requests</strong><br>
+                  Hospitals can post real-time blood requests.
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="p-3 border rounded h-100" style="background-color: var(--light-gray);">
+                  <strong>Donor Profiles</strong><br>
+                  Track donation history, location, and impact.
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="p-3 border rounded h-100" style="background-color: var(--secondary-green); color: white;">
+                  <strong>Dashboards</strong><br>
+                  Manage cases efficiently.
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div class="p-3 border rounded h-100" style="background-color: var(--light-gray);">
+                   <strong>Real-Time Alerts</strong><br>
+                  Notifications for matching donors instantly.
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div class="p-3 border rounded h-100" style="background-color: var(--secondary-green); color: white;">
+                   <strong>Secure & Reliable</strong><br>
+                  Encrypted data and verified cases.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="card shadow-sm border-0 mt-4 animate__animated animate__fadeInUp">
+          <div class="card-body text-center">
+            <h4 class="text-primary-red mb-3"> Our Impact</h4>
+            <p>
+              GivePulse reduces waiting times for patients, increases awareness about the 
+              importance of blood donation, and builds a strong community committed to saving lives.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}

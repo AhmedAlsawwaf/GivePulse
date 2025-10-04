@@ -6,6 +6,20 @@ from django.contrib import messages
 from .forms import LoginForm, DonorRegistrationForm, StaffRegistrationForm, BloodRequestForm
 from .models import User,Hospital
 
+def index(request):
+    return render(request,"index.html")
+
+def contact(request):
+    return render(request, "contact.html")
+
+def privacy(request):
+    return render(request, "privacy.html")
+
+def terms(request):
+    return render(request, "terms.html")
+
+def about(request):
+    return render(request, "about.html")
 def _login(request, user: User):
     request.session["user_id"] = user.id
     request.session["user_role"] = user.role
