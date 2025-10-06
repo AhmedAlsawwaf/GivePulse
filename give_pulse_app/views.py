@@ -7,7 +7,13 @@ from .forms import LoginForm, DonorRegistrationForm, StaffRegistrationForm, Bloo
 from .models import User,Hospital
 
 def index(request):
-    return render(request,"index.html")
+    user = None
+    if request.session.get("user_id"):
+        try:
+            user = User.objects.get(pk=request.session["user_id"])
+        except User.DoesNotExist:
+            _logout(request)
+    return render(request,"index.html",{"user": user})
 
 def contact(request):
     return render(request, "contact.html")
@@ -28,14 +34,14 @@ def _logout(request):
     for k in ("user_id", "user_role"):
         request.session.pop(k, None)
 
-def home(request):
-    user = None
-    if request.session.get("user_id"):
-        try:
-            user = User.objects.get(pk=request.session["user_id"])
-        except User.DoesNotExist:
-            _logout(request)
-    return render(request, "home.html", {"user": user})
+# def home(request):
+#     user = None
+#     if request.session.get("user_id"):
+#         try:
+#             user = User.objects.get(pk=request.session["user_id"])
+#         except User.DoesNotExist:
+#             _logout(request)
+#     return render(request, "home.html", {"user": user})
 
 def login_view(request):
     if request.method == "POST":
@@ -47,7 +53,7 @@ def login_view(request):
             return redirect("dashboard")
     else:
         form = LoginForm()
-    return render(request, "login.html", {"form": form})
+    return render(request, "login_view.html", {"form": form})
 
 def logout_view(request):
     _logout(request)

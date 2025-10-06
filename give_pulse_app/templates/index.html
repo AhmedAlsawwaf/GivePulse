@@ -15,7 +15,8 @@
       and build a strong community committed to saving lives
     </p>
     <div class="mt-4 animate__animated animate__zoomIn animate__delay-2s">
-      <a href="#" class="btn btn-secondary-custom btn-lg me-3">Get Started</a>
+      <a href="{% url 'register_donor' %}" class="btn btn-secondary-custom btn-lg me-3">Register as Donor</a>
+      <a href="{% url 'register_staff' %}" class="btn btn-secondary-custom btn-lg me-3">Register as Staff</a>
     </div>
   </div>
 </section>
@@ -95,7 +96,7 @@
       </div>
       <div
         class="col-md-6 mb-4 d-flex align-items-center justify-content-center animate__animated animate__fadeInRight animate__delay-2s">
-        <img src="{% static 'images/chart.png' %}" alt="Weekly Donations Chart" class="chart-img">
+        <img src="{% static 'images/chart.png' %}" alt="Weekly Donations Chart" class="chart-img img-fluid">
       </div>
     </div>
   </div>

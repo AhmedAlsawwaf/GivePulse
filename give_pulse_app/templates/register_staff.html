@@ -1,106 +1,124 @@
-<!DOCTYPE html>
-<html>
-  <body>
-    {% include "_nav.html" %}
-    <h1>Register (Staff)</h1>
+{% extends "base.html" %}
+{% load static %}
 
-    {% if messages %}
-      <ul>
-        {% for m in messages %}<li>{{ m }}</li>{% endfor %}
-      </ul>
-    {% endif %}
+{% block title %}Register as Staff - GivePulse{% endblock %}
 
-    <form method="post" id="staff-register-form">
-      {% csrf_token %}
-      <p>{{ form.first_name.label_tag }} {{ form.first_name }}</p>
-      <p>{{ form.last_name.label_tag }} {{ form.last_name }}</p>
-      <p>{{ form.email.label_tag }} {{ form.email }}</p>
-      <p>{{ form.phone.label_tag }} {{ form.phone }}</p>
-      <p>{{ form.password1.label_tag }} {{ form.password1 }}</p>
-      <p>{{ form.password2.label_tag }} {{ form.password2 }}</p>
+{% block content %}
+<section class="login-section d-flex align-items-center justify-content-center py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-7 col-lg-5">
+        <div class="card shadow border-0 rounded-4 overflow-hidden p-4 animate__animated animate__fadeInUp">
 
-      <p>{{ form.city.label_tag }} {{ form.city }}</p>
-      <p>
-        {{ form.hospital.label_tag }}
-        {{ form.hospital }}
-        <span id="hospitals-loading" style="display:none;">Loading...</span>
-        <span id="hospitals-empty" style="display:none;">No hospitals found for this city.</span>
-      </p>
+          <!-- Header -->
+          <div class="text-center mb-3">
+            <img src="{% static 'images/logo.png' %}" alt="GivePulse Logo" class="mb-2" style="height:60px;">
+            <h3 class="fw-bold text-primary-red mb-1">Register as Staff</h3>
+            <p class="text-muted mb-0 small">Join our hospital network and manage blood requests</p>
+          </div>
 
-      <button type="submit">Create Staff Account</button>
-    </form>
+          <form method="POST" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
 
-    <script>
-      (function () {
-        const citySelect = document.getElementById("id_city");
-        const hospitalSelect = document.getElementById("id_hospital");
-        const loading = document.getElementById("hospitals-loading");
-        const emptyMsg = document.getElementById("hospitals-empty");
+            <!-- First Name -->
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-person-fill me-1"></i> First Name</label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}
+              <div class="invalid-feedback d-block">{{ form.first_name.errors.0 }}</div>
+              {% endif %}
+            </div>
 
-        function clearHospitals() {
-          hospitalSelect.innerHTML = "";
-          hospitalSelect.disabled = true;
-          emptyMsg.style.display = "none";
-        }
+            <!-- Last Name -->
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-person-fill me-1"></i> Last Name</label>
+              {{ form.last_name }}
+              {% if form.last_name.errors %}
+              <div class="invalid-feedback d-block">{{ form.last_name.errors.0 }}</div>
+              {% endif %}
+            </div>
 
-        function populateHospitals(items) {
-          hospitalSelect.innerHTML = "";
-          if (!items || !items.length) {
-            hospitalSelect.disabled = true;
-            emptyMsg.style.display = "inline";
-            return;
-          }
-          const ph = document.createElement("option");
-          ph.value = "";
-          ph.textContent = "Select a hospital";
-          hospitalSelect.appendChild(ph);
+            <!-- Email -->
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-envelope-fill me-1"></i> Email Address</label>
+              {{ form.email }}
+              {% if form.email.errors %}
+              <div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>
+              {% endif %}
+            </div>
 
-          for (const item of items) {
-            const opt = document.createElement("option");
-            opt.value = item.id;
-            opt.textContent = item.name;
-            hospitalSelect.appendChild(opt);
-          }
-          hospitalSelect.disabled = false;
-          emptyMsg.style.display = "none";
-        }
+            <!-- Phone -->
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-telephone-fill me-1"></i> Phone</label>
+              {{ form.phone }}
+            </div>
 
-        async function fetchHospitals(cityId) {
-          if (!cityId) {
-            clearHospitals();
-            return;
-          }
-          loading.style.display = "inline";
-          clearHospitals();
-          try {
-            const url = "{% url 'api_hospitals_by_city' %}?city_id=" + encodeURIComponent(cityId);
-            const res = await fetch(url, { headers: { "Accept": "application/json" } });
-            const data = await res.json();
-            populateHospitals(data.results || []);
-          } catch (e) {
-            console.error(e);
-            clearHospitals();
-          } finally {
-            loading.style.display = "none";
-          }
-        }
+            <!-- Password -->
+            <div class="mb-3">
+              <label for="id_password1" class="form-label fw-semibold text-secondary-green">
+                <i class="bi bi-lock-fill me-1"></i> Password
+              </label>
+              <div class="position-relative">
+                {{ form.password1 }}
+                <i class="bi bi-eye position-absolute toggle-password" data-target="id_password1"></i>
+              </div>
+              {% if form.password1.errors %}
+              <div class="invalid-feedback d-block">{{ form.password1.errors.0 }}</div>
+              {% endif %}
+            </div>
 
-        // On change → fetch hospitals
-        citySelect.addEventListener("change", function () {
-          fetchHospitals(this.value);
-        });
+            <!-- Confirm Password -->
+            <div class="mb-3">
+              <label for="id_password2" class="form-label fw-semibold text-secondary-green">
+                <i class="bi bi-lock-fill me-1"></i> Confirm Password
+              </label>
+              <div class="position-relative">
+                {{ form.password2 }}
+                <i class="bi bi-eye position-absolute toggle-password" data-target="id_password2"></i>
+              </div>
+              {% if form.password2.errors %}
+              <div class="invalid-feedback d-block">{{ form.password2.errors.0 }}</div>
+              {% endif %}
+            </div>
 
-        // On page load, if a city already selected (e.g., after validation error), re-fetch
-        if (citySelect.value) {
-          fetchHospitals(citySelect.value).then(() => {
-            // try to restore previously selected hospital value, if any
-            const prev = "{{ form.hospital.value|default_if_none:'' }}";
-            if (prev) hospitalSelect.value = prev;
-          });
-        } else {
-          clearHospitals();
-        }
-      })();
-    </script>
-  </body>
-</html>
+            <!-- City -->
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-geo-alt-fill me-1"></i> City</label>
+              {{ form.city }}
+              <div id="hospitals-loading" class="small text-muted mt-1" style="display:none;">Loading hospitals...</div>
+            </div>
+
+            <!-- Hospital -->
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-building-fill me-1"></i> Hospital</label>
+              {{ form.hospital }}
+              <div id="hospitals-empty" class="small text-danger mt-1" style="display:none;">No hospitals found for this city.</div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary-red w-100 py-2 fw-semibold mt-2">
+              Create Staff Account
+            </button>
+          </form>
+
+          <div class="text-center mt-3">
+            <small class="text-muted">Already have an account?
+              <a href="{% url 'login' %}" class="text-secondary-green fw-semibold text-decoration-none">
+                Login here
+              </a>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+<link href="{% static 'css/forms.css' %}" rel="stylesheet">
+
+{% block extra_js %}
+<script src="{% static 'js/staff_register.js' %}"></script>
+{% endblock %}
+
+{% endblock %}
