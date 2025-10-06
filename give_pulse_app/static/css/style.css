@@ -213,3 +213,40 @@ footer {
   transform: scale(1.05);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
+:root {
+  --primary-red: #ed3744;
+  --secondary-green: #a5b68e;
+  --light-gray: #f5f5f5;
+  --dark-text: #212121;
+  --white: #fff;
+}
+
+body {
+  background-color: var(--white);
+  color: var(--dark-text);
+  font-family: "Poppins", sans-serif;
+}
+/* Buttons */
+.btn-primary-red {
+  background-color: var(--primary-red);
+  border: none;
+  color: #fff !important;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary-red:hover,
+.btn-primary-red:focus,
+.btn-primary-red:active {
+  background-color: #d32f2f !important;
+  transform: translateY(-2px);
+  box-shadow: 0 0 6px rgba(237, 55, 68, 0.3);
+}
+
+.text-primary-red {
+  color: var(--primary-red);
+}
+
+.text-secondary-green {
+  color: var(--secondary-green);
+}

@@ -7,9 +7,32 @@ from django.utils import timezone
 from .models import User, Donor, Staff, City, Hospital, BloodType, RhType, BloodRequest
 from .validators import validate_password_strength
 
+
 class LoginForm(forms.Form):
-    email = forms.EmailField(label="Email")
-    password = forms.CharField(label="Password", widget=forms.PasswordInput)
+
+    email = forms.EmailField(
+        label="Email",
+        widget=forms.EmailInput(
+            attrs={
+                "class": "form-control form-control-lg shadow-sm",
+                "placeholder": "Enter your email",
+                "autocomplete": "email",
+                "id": "id_email",
+            }
+        ),
+    )
+
+    password = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control form-control-lg shadow-sm",
+                "placeholder": "Enter your password",
+                "autocomplete": "current-password",
+                "id": "id_password",
+            }
+        ),
+    )
 
     _user = None
 
@@ -21,34 +44,110 @@ class LoginForm(forms.Form):
         if email and password:
             user = User.objects.authenticate(email=email, password=password)
             if not user:
-                raise ValidationError("Invalid email or password.")
-            self._user = user
+                self.add_error("password", "Invalid email or password. Please try again.")
+            else:
+                self._user = user
         return cleaned
 
-    def get_user(self) -> User | None:
-        return self._user
+    def get_user(self):
+        return self._user   
 
 
 class DonorRegistrationForm(forms.Form):
-
-    first_name = forms.CharField(max_length=150, label="First name")
-    last_name  = forms.CharField(max_length=150, label="Last name")
-    email      = forms.EmailField(label="Email")
-    phone      = forms.CharField(max_length=20, required=False, label="Phone")
-
-    password1  = forms.CharField(label="Password", widget=forms.PasswordInput)
-    password2  = forms.CharField(label="Confirm password", widget=forms.PasswordInput)
-
-    abo  = forms.ChoiceField(choices=BloodType.choices, label="ABO")
-    rh   = forms.ChoiceField(choices=RhType.choices, label="Rh")
-    city = forms.ModelChoiceField(queryset=City.objects.all(), label="City")
-
+    first_name = forms.CharField(
+        label="First Name",
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control custom-input",
+                "placeholder": "First name",
+                "id": "id_first_name",
+            }
+        ),
+    )
+    last_name = forms.CharField(
+        label="Last Name",
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control custom-input",
+                "placeholder": "Last name",
+                "id": "id_last_name",
+            }
+        ),
+    )
+    email = forms.EmailField(
+        label="Email Address",
+        widget=forms.EmailInput(
+            attrs={
+                "class": "form-control custom-input",
+                "placeholder": "example@email.com",
+                "id": "id_email",
+            }
+        ),
+    )
+    phone = forms.CharField(
+        label="Phone",
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control custom-input",
+                "placeholder": "+20 10 1234 5678",
+                "id": "id_phone",
+            }
+        ),
+    )
+    password1 = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control custom-input",
+                "placeholder": "********",
+                "id": "id_password1",
+            }
+        ),
+    )
+    password2 = forms.CharField(
+        label="Confirm Password",
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control custom-input",
+                "placeholder": "********",
+                "id": "id_password2",
+            }
+        ),
+    )
+    abo = forms.ChoiceField(
+        label="Blood Type (ABO)",
+        choices=BloodType.choices,
+        widget=forms.Select(
+            attrs={"class": "form-select custom-input", "id": "id_abo"}
+        ),
+    )
+    rh = forms.ChoiceField(
+        label="Rh Factor",
+        choices=RhType.choices,
+        widget=forms.Select(
+            attrs={"class": "form-select custom-input", "id": "id_rh"}
+        ),
+    )
+    city = forms.ModelChoiceField(
+        label="City",
+        queryset=City.objects.all(),
+        widget=forms.Select(
+            attrs={"class": "form-select custom-input", "id": "id_city"}
+        ),
+    )
+    profile_picture = forms.ImageField(
+        required=False,
+        label="Profile Picture",
+        widget=forms.ClearableFileInput(
+            attrs={"class": "form-control custom-input", "id": "id_profile_picture"}
+        ),
+    )
     eligibility_consent = forms.BooleanField(
         required=False,
-        label="I consent and confirm I meet eligibility rules",
+        label="I confirm that I meet the donation eligibility criteria.",
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input me-2"}),
     )
-
-    profile_picture = forms.ImageField(required=False, label="Profile picture")
 
     def clean_email(self):
         email = self.cleaned_data["email"].strip().lower()
@@ -58,27 +157,28 @@ class DonorRegistrationForm(forms.Form):
 
     def clean(self):
         cleaned = super().clean()
-
         p1 = cleaned.get("password1") or ""
         p2 = cleaned.get("password2") or ""
         if p1 != p2:
             raise ValidationError({"password2": "Passwords do not match."})
         validate_password_strength(p1)
-
         return cleaned
 
+    # ✅ FIX: add save() method
     def save(self):
         cd = self.cleaned_data
 
+        # Create user
         user = User.objects.create_user(
             first_name=cd["first_name"],
             last_name=cd["last_name"],
             email=cd["email"],
-            password=cd["password1"], 
+            password=cd["password1"],
             phone=cd.get("phone") or "",
             role="donor",
         )
 
+        # Create donor profile
         donor = Donor.objects.create_donor(
             user_id=user.id,
             abo=cd["abo"],
@@ -87,6 +187,7 @@ class DonorRegistrationForm(forms.Form):
             eligibility_consent=cd.get("eligibility_consent", False),
         )
 
+        # Add profile picture if uploaded
         pic = cd.get("profile_picture")
         if pic:
             donor.profile_picture = pic
@@ -96,21 +197,97 @@ class DonorRegistrationForm(forms.Form):
         return user, donor
 
 
+
 class StaffRegistrationForm(forms.Form):
-    first_name = forms.CharField(max_length=150, label="First name")
-    last_name  = forms.CharField(max_length=150, label="Last name")
-    email      = forms.EmailField(label="Email")
-    phone      = forms.CharField(max_length=20, required=False, label="Phone")
+    first_name = forms.CharField(
+        label="First Name",
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control custom-input",
+                "placeholder": "First name",
+                "id": "id_first_name",
+            }
+        ),
+    )
+    last_name = forms.CharField(
+        label="Last Name",
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control custom-input",
+                "placeholder": "Last name",
+                "id": "id_last_name",
+            }
+        ),
+    )
+    email = forms.EmailField(
+        label="Email Address",
+        widget=forms.EmailInput(
+            attrs={
+                "class": "form-control custom-input",
+                "placeholder": "example@email.com",
+                "id": "id_email",
+            }
+        ),
+    )
+    phone = forms.CharField(
+        label="Phone",
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control custom-input",
+                "placeholder": "+20 10 1234 5678",
+                "id": "id_phone",
+            }
+        ),
+    )
+    password1 = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control custom-input",
+                "placeholder": "********",
+                "id": "id_password1",
+            }
+        ),
+    )
+    password2 = forms.CharField(
+        label="Confirm Password",
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control custom-input",
+                "placeholder": "********",
+                "id": "id_password2",
+            }
+        ),
+    )
 
-    password1  = forms.CharField(label="Password", widget=forms.PasswordInput)
-    password2  = forms.CharField(label="Confirm password", widget=forms.PasswordInput)
-
-    city     = forms.ModelChoiceField(queryset=City.objects.all(), label="City", required=True)
-    hospital = forms.ModelChoiceField(queryset=Hospital.objects.none(), label="Hospital", required=True)
+    city = forms.ModelChoiceField(
+        label="City",
+        queryset=City.objects.all(),
+        widget=forms.Select(
+            attrs={
+                "class": "form-select custom-input",
+                "id": "id_city",
+            }
+        ),
+        required=True,
+    )
+    hospital = forms.ModelChoiceField(
+        label="Hospital",
+        queryset=Hospital.objects.none(),
+        widget=forms.Select(
+            attrs={
+                "class": "form-select custom-input",
+                "id": "id_hospital",
+            }
+        ),
+        required=True,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Auto-filter hospitals based on selected city
         data_city = None
         if "city" in self.data:
             try:
@@ -163,15 +340,33 @@ class StaffRegistrationForm(forms.Form):
         return user, staff
 
 class BloodRequestForm(forms.Form):
-    abo = forms.ChoiceField(choices=BloodType.choices, label="ABO")
-    rh = forms.ChoiceField(choices=RhType.choices, label="Rh")
-    units_requested = forms.IntegerField(min_value=1, label="Units requested")
+    abo = forms.ChoiceField(
+        label="Blood Type (ABO)",
+        choices=BloodType.choices,
+        widget=forms.Select(attrs={"class": "form-select custom-input"}),
+    )
+    rh = forms.ChoiceField(
+        label="Rh Factor",
+        choices=RhType.choices,
+        widget=forms.Select(attrs={"class": "form-select custom-input"}),
+    )
+    units_requested = forms.IntegerField(
+        min_value=1,
+        label="Number of Units",
+        widget=forms.NumberInput(attrs={"class": "form-control custom-input", "placeholder": "Enter number of blood units"}),
+    )
     deadline_at = forms.DateTimeField(
         label="Deadline",
-        widget=forms.DateTimeInput(attrs={"type": "datetime-local"}),
+        widget=forms.DateTimeInput(
+            attrs={"type": "datetime-local", "class": "form-control custom-input"}
+        ),
         input_formats=["%Y-%m-%dT%H:%M"],
     )
-    notes = forms.CharField(widget=forms.Textarea, required=False, label="Notes")
+    notes = forms.CharField(
+        widget=forms.Textarea(attrs={"class": "form-control custom-input", "rows": 3, "placeholder": "Optional notes or urgency details"}),
+        required=False,
+        label="Notes (optional)",
+    )
 
     def __init__(self, *args, staff: Staff | None = None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -187,30 +382,12 @@ class BloodRequestForm(forms.Form):
             raise ValidationError("Deadline must be in the future.")
         return dt
 
-    def clean(self):
-        cleaned = super().clean()
-        return cleaned
-
-    def save(self) -> BloodRequest:
+    def save(self):
         cd = self.cleaned_data
         hospital = self.staff.hospital
         city = hospital.city
 
-        if hasattr(BloodRequest.objects, "create_request"):
-            br = BloodRequest.objects.create_request(
-                hospital_id=hospital.id,
-                created_by_id=self.staff.id,
-                units_requested=cd["units_requested"],
-                abo=cd["abo"],
-                rh=cd["rh"],
-                city_id=city.id,
-                deadline_at=cd["deadline_at"],
-                notes=cd.get("notes", ""),
-                status="open",
-            )
-            return br
-
-        br = BloodRequest(
+        request = BloodRequest.objects.create(
             hospital=hospital,
             created_by=self.staff,
             units_requested=cd["units_requested"],
@@ -221,6 +398,5 @@ class BloodRequestForm(forms.Form):
             notes=cd.get("notes", ""),
             status="open",
         )
-        br.full_clean()
-        br.save()
-        return br
+        return request
+

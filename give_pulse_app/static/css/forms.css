@@ -1,0 +1,71 @@
+input.form-control,
+textarea.form-control,
+select.form-select,
+.custom-input {
+  background-color: #fff !important;
+  color: #212121 !important;
+  border: 1.4px solid #ddd;
+  border-radius: 10px;
+  padding: 12px 14px;
+  transition: all 0.3s ease;
+  height: 48px;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+  box-shadow: 0 0 0 1000px #fff inset !important;
+  -webkit-text-fill-color: #212121 !important;
+}
+
+input.form-control:focus,
+textarea.form-control:focus,
+select.form-select:focus {
+  border-color: #A5B68E !important;
+  box-shadow: 0 0 6px rgba(165, 182, 142, 0.35);
+  background-color: #fff !important;
+}
+
+.form-label {
+  color: #A5B68E !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.form-label i {
+  color: #A5B68E !important;
+  font-size: 1rem;
+}
+
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  color: #aaa;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+}
+
+.toggle-password:hover,
+.toggle-password.active {
+  color: var(--primary-red);
+}
+
+input[type="checkbox"].form-check-input {
+  accent-color: #A5B68E !important;
+  transform: scale(1.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+input[type="checkbox"].form-check-input:focus {
+  box-shadow: 0 0 6px rgba(165, 182, 142, 0.35);
+  
+}

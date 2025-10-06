@@ -1,0 +1,81 @@
+/* Buttons */
+.btn-primary-red {
+  background-color: var(--primary-red);
+  border: none;
+  color: #fff !important;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary-red:hover,
+.btn-primary-red:focus,
+.btn-primary-red:active {
+  background-color: #d32f2f !important;
+  transform: translateY(-2px);
+  box-shadow: 0 0 6px rgba(237, 55, 68, 0.3);
+}
+
+.btn-secondary-custom {
+  background-color: var(--secondary-green);
+  color: var(--white) !important;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary-custom:hover {
+  background-color: #8e9f74;
+  transform: scale(1.05);
+}
+
+/* Typography Utilities */
+.text-primary-red { color: var(--primary-red); }
+.text-secondary-green { color: var(--secondary-green); }
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  padding: 80px 20px 40px;
+  background: linear-gradient(to right, var(--white), #f9f9f9);
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--primary-red);
+}
+
+.hero p {
+  font-size: 1.2rem;
+  margin: 20px 0;
+}
+
+/* Cards / Animations */
+.animate-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s forwards;
+}
+
+.animate-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Table / Leaderboard */
+.table {
+  background: var(--white);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+  background-color: var(--secondary-green);
+  color: var(--white);
+}
+
+.table tbody tr:hover {
+  background-color: #f5f5f5;
+}

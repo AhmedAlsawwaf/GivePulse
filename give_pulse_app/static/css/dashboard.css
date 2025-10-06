@@ -1,0 +1,29 @@
+.dashboard-section {
+  min-height: calc(100vh - 120px);
+  background: linear-gradient(135deg, #F8F9F8 0%, #F2F4F0 100%);
+}
+
+.card {
+  border-radius: 16px;
+}
+
+.text-primary-red {
+  color: var(--primary-red);
+}
+
+.text-secondary-green {
+  color: var(--secondary-green);
+}
+
+.btn-primary-red {
+  background-color: var(--primary-red);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  transition: 0.3s;
+}
+
+.btn-primary-red:hover {
+  background-color: #d12f3b;
+  transform: scale(1.03);
+}

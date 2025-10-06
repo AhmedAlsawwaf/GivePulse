@@ -1,0 +1,156 @@
+ .login-section {
+    min-height: calc(100vh - 120px);
+    background: linear-gradient(135deg, #F8F9F8 0%, #F2F4F0 100%);
+  }
+
+  .bg-light-green {
+    background-color: #f5f8f3;
+  }
+
+  .text-primary-red {
+    color: var(--primary-red);
+  }
+
+  .text-secondary-green {
+    color: var(--secondary-green);
+  }
+
+  /* Inputs */
+  input.form-control,
+  textarea.form-control {
+    border-radius: 10px;
+    border: 1.4px solid #ddd;
+    transition: all 0.3s ease;
+    padding: 12px 45px 12px 14px;
+    background-color: #fff !important;
+    color: #212121;
+    height: 48px;
+    line-height: 1.2;
+  }
+
+  input.form-control:focus {
+    border-color: var(--primary-red);
+    box-shadow: 0 0 8px rgba(237, 55, 68, 0.25);
+    background-color: #fff !important;
+  }
+
+  input#id_password.form-control {
+    padding-right: 44px !important;
+  }
+
+  /* Fix Chrome/Edge autofill */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+    box-shadow: 0 0 0 1000px #ffffff inset !important;
+    -webkit-text-fill-color: #000 !important;
+  }
+
+  /* Buttons */
+  .btn-primary-red {
+    background-color: var(--primary-red);
+    border: none;
+    color: #fff !important;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+  }
+
+  .btn-primary-red:hover,
+  .btn-primary-red:focus,
+  .btn-primary-red:active,
+  .btn-primary-red:visited {
+    background-color: #d32f2f !important;
+    color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 0 6px rgba(237, 55, 68, 0.3);
+  }
+
+  .position-relative {
+    position: relative;
+  }
+
+  .btn-password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #aaa;
+    font-size: 1.2rem;
+    cursor: pointer;
+    height: 24px;
+    width: 24px;
+    padding: 0;
+  }
+
+  .btn-password-toggle:hover {
+    color: var(--primary-red);
+  }
+
+  @media (max-width: 768px) {
+    .card {
+      border-radius: 1rem;
+    }
+  }
+  /* =============== Donor & Login shared =============== */
+
+.custom-input {
+  border: 1.4px solid #ddd;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background-color: #fff;
+  color: #212121;
+  height: 46px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.custom-input::placeholder {
+  font-size: 0.83rem;
+  color: #b0b0b0;
+}
+
+.custom-input:focus {
+  border-color: #A5B68E;
+  box-shadow: 0 0 6px rgba(165, 182, 142, 0.35);
+}
+
+/* Label + icons */
+.form-label {
+  color: #A5B68E;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* Inline error exactly like your screenshot */
+.invalid-feedback {
+  color: #ed3744;
+  font-size: 0.85rem;
+  margin-top: 3px;
+}
+
+/* Checkbox */
+.form-check-input {
+  accent-color: var(--primary-red);
+  transform: scale(1.1);
+}
+
+/* Button */
+.btn-primary-red {
+  background-color: var(--primary-red);
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary-red:hover {
+  background-color: #d12f3b;
+  transform: scale(1.02);
+}

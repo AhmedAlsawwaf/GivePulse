@@ -1,54 +1,105 @@
-<!DOCTYPE html>
-<html>
-  <body>
-    {% include "_nav.html" %}
-    <h1>Dashboard</h1>
+{% extends "base.html" %}
+{% load static %}
 
-    {% if messages %}
-      <ul>
-        {% for m in messages %}
-          <li>{{ m }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+{% block title %}Dashboard - GivePulse{% endblock %}
 
-    {% if user %}
-      <section>
-        <p>Hello, {{ user.first_name }} {{ user.last_name }} ({{ user.role }})</p>
-        <p>Email: {{ user.email }}</p>
-        <p>Phone: {{ user.phone|default:"—" }}</p>
-      </section>
+{% block content %}
+<section class="dashboard-section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <!-- Dashboard Card -->
+        <div class="card shadow border-0 rounded-4 overflow-hidden animate__animated animate__fadeInUp">
+          <div class="card-header bg-light text-center py-4">
+            <h3 class="fw-bold text-primary-red mb-1">
+              Welcome, {{ user.first_name }} {{ user.last_name }}
+            </h3>
+            <p class="text-muted mb-0 small">
+              Role: <span class="fw-semibold text-secondary-green">{{ user.role|title }}</span>
+            </p>
+          </div>
 
-      {% if user.donor %}
-        <hr>
-        <section>
-          <h2>Your Donor Profile</h2>
-          <p>ABO/Rh: {{ user.donor.abo }}{{ user.donor.rh }}</p>
-          <p>City: {{ user.donor.city }}</p>
-          {% if user.donor.profile_picture %}
-            <p><img src="{{ user.donor.profile_picture.url }}" alt="Avatar" width="160" height="160"></p>
-          {% else %}
-            <p>No profile picture uploaded.</p>
-          {% endif %}
-        </section>
-      {% endif %}
+          <div class="card-body p-4">
+            <!-- User Info -->
+            <div class="mb-4">
+              <h5 class="text-secondary-green fw-semibold mb-2">
+                <i class="bi bi-person-circle me-2"></i> Profile Information
+              </h5>
+              <ul class="list-unstyled mb-0">
+                <li><strong>Email:</strong> {{ user.email }}</li>
+                <li><strong>Phone:</strong> {{ user.phone|default:"—" }}</li>
+              </ul>
+            </div>
 
-      {% if user.staff %}
-        <hr>
-        <section>
-          <h2>Your Staff Profile</h2>
-          <p>Hospital: {{ user.staff.hospital }}</p>
-          <p>Verified: {{ user.staff.is_verified }}</p>
+            <!-- Donor Section -->
+            {% if user.donor %}
+              <hr>
+              <div class="mb-4">
+                <h5 class="text-secondary-green fw-semibold mb-3">
+                  <i class="bi bi-droplet-half me-2"></i> Donor Profile
+                </h5>
+                <p><strong>ABO/Rh:</strong> {{ user.donor.abo }}{{ user.donor.rh }}</p>
+                <p><strong>City:</strong> {{ user.donor.city }}</p>
 
-          {% if user.staff.is_verified %}
-            <p><a href="{% url 'blood_request_new' %}">Create Blood Request</a></p>
-          {% else %}
-            <p><em>Your account must be verified to create requests.</em></p>
-          {% endif %}
-        </section>
-      {% endif %}
-    {% else %}
-      <p>Please <a href="{% url 'login' %}">login</a>.</p>
-    {% endif %}
-  </body>
-</html>
+                {% if user.donor.profile_picture %}
+                  <div class="text-center mt-3">
+                    <img src="{{ user.donor.profile_picture.url }}" 
+                         alt="Profile Picture" 
+                         class="rounded-circle shadow-sm" 
+                         width="140" height="140">
+                  </div>
+                {% else %}
+                  <p class="text-muted fst-italic">No profile picture uploaded.</p>
+                {% endif %}
+              </div>
+            {% endif %}
+
+            <!-- Staff Section -->
+            {% if user.staff %}
+              <hr>
+              <div class="mb-4">
+                <h5 class="text-secondary-green fw-semibold mb-3">
+                  <i class="bi bi-hospital-fill me-2"></i> Staff Profile
+                </h5>
+                <p><strong>Hospital:</strong> {{ user.staff.hospital }}</p>
+                <p><strong>Verified:</strong>
+                  {% if user.staff.is_verified %}
+                    <span class="badge bg-success">Yes</span>
+                  {% else %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  {% endif %}
+                </p>
+
+                <!-- Blood Request Button -->
+                {% if user.staff %}
+                  <a href="{% url 'blood_request_new' %}" class="btn btn-primary-red mt-2">
+                    <i class="bi bi-plus-circle me-2"></i> Create Blood Request
+                  </a>
+                {% else %}
+                  <p class="text-muted mt-2">
+                    <em>Your account must be verified to create requests.</em>
+                  </p>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+          <div class="mt-4">
+            {% for m in messages %}
+              <div class="alert alert-{{ m.tags }} text-center mb-2 small shadow-sm">
+                {{ m }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+{% endblock %}

@@ -1,22 +1,133 @@
-<!-- give_pulse_app/templates/register_donor.html -->
-<!DOCTYPE html>
-<html>
-  <body>
-    {% include "_nav.html" %}
-    <h1>Register (Donor)</h1>
+{% extends "base.html" %}
+{% load static %}
 
-    {% if messages %}
-      <ul>
-        {% for m in messages %}
-          <li>{{ m }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+{% block title %}Register as Donor - GivePulse{% endblock %}
 
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit">Create Donor Account</button>
-    </form>
-  </body>
-</html>
+{% block content %}
+<section class="login-section d-flex align-items-center justify-content-center py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-7 col-lg-5">
+        <div class="card shadow border-0 rounded-4 overflow-hidden p-4 animate__animated animate__fadeInUp">
+
+          <div class="text-center mb-3">
+            <img src="{% static 'images/logo.png' %}" alt="GivePulse Logo" class="mb-2" style="height:60px;">
+            <h3 class="fw-bold text-primary-red mb-1">Register as Donor</h3>
+            <p class="text-muted mb-0 small">Join our community and save lives</p>
+          </div>
+
+          <form method="POST" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-person-fill me-1"></i> First Name</label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}
+              <div class="invalid-feedback d-block">{{ form.first_name.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-person-fill me-1"></i> Last Name</label>
+              {{ form.last_name }}
+              {% if form.last_name.errors %}
+              <div class="invalid-feedback d-block">{{ form.last_name.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-envelope-fill me-1"></i> Email Address</label>
+              {{ form.email }}
+              {% if form.email.errors %}
+              <div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-telephone-fill me-1"></i> Phone</label>
+              {{ form.phone }}
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+              <label for="id_password1" class="form-label fw-semibold text-secondary-green">
+                <i class="bi bi-lock-fill me-1"></i> Password
+              </label>
+              <div class="position-relative">
+                {{ form.password1 }}
+                <i class="bi bi-eye position-absolute toggle-password" id="togglePassword1"
+                  data-target="id_password1"></i>
+              </div>
+              {% if form.password1.errors %}
+              <div class="invalid-feedback d-block">{{ form.password1.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-3">
+              <label for="id_password2" class="form-label fw-semibold text-secondary-green">
+                <i class="bi bi-lock-fill me-1"></i> Confirm Password
+              </label>
+              <div class="position-relative">
+                {{ form.password2 }}
+                <i class="bi bi-eye position-absolute toggle-password" id="togglePassword2"
+                  data-target="id_password2"></i>
+              </div>
+              {% if form.password2.errors %}
+              <div class="invalid-feedback d-block">{{ form.password2.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label"><i class="bi bi-droplet-half me-1"></i> ABO</label>
+                {{ form.abo }}
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label"><i class="bi bi-plus-slash-minus me-1"></i> Rh</label>
+                {{ form.rh }}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-geo-alt-fill me-1"></i> City</label>
+              {{ form.city }}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-image-fill me-1"></i> Profile Picture</label>
+              {{ form.profile_picture }}
+            </div>
+
+            <div class="form-check mb-3">
+              {{ form.eligibility_consent }}
+              <label class="form-check-label small text-muted">
+                I confirm that I meet the eligibility criteria
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary-red w-100 py-2 fw-semibold mt-2">
+              Create Donor Account
+            </button>
+          </form>
+
+          <div class="text-center mt-3">
+            <small class="text-muted">Already have an account?
+              <a href="{% url 'login' %}" class="text-secondary-green fw-semibold text-decoration-none">
+                Login here
+              </a>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+<link href="{% static 'css/forms.css' %}" rel="stylesheet">
+
+{% block extra_js %}
+<script src="{% static 'js/register.js' %}"></script>
+{% endblock %}
+{% endblock %}
