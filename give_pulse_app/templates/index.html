@@ -57,47 +57,48 @@
             </tr>
             <tr>
               <td>1</td>
-              <td>Ahmad</td>
+              <td>Issa</td>
               <td>5</td>
               <td>Gaza</td>
             </tr>
             <tr>
               <td>2</td>
-              <td>Yahia</td>
+              <td>Islam</td>
               <td>3</td>
               <td>Rafah</td>
             </tr>
             <tr>
               <td>3</td>
-              <td>Hala</td>
+              <td>Fatima</td>
               <td>2</td>
-              <td>Khan Younis</td>
+              <td>Ramallah</td>
             </tr>
             <tr>
               <td>1</td>
-              <td>Ahmad</td>
+              <td>Mohammad</td>
               <td>5</td>
-              <td>Gaza</td>
+              <td>Nablus</td>
             </tr>
             <tr>
               <td>2</td>
-              <td>Yahia</td>
+              <td>Razan</td>
               <td>3</td>
-              <td>Rafah</td>
+              <td>Ramallah</td>
             </tr>
             <tr>
               <td>3</td>
-              <td>Hala</td>
+              <td>Sara</td>
               <td>2</td>
-              <td>Khan Younis</td>
+              <td>Hebron</td>
             </tr>
           </tbody>
         </table>
       </div>
       <div
-        class="col-md-6 mb-4 d-flex align-items-center justify-content-center animate__animated animate__fadeInRight animate__delay-2s">
-        <img src="{% static 'images/chart.png' %}" alt="Weekly Donations Chart" class="chart-img img-fluid">
-      </div>
+  class="col-md-6 mb-4 d-flex align-items-center justify-content-center animate__animated animate__fadeInRight animate__delay-2s">
+  <canvas id="donationsChart"></canvas>
+</div>
+
     </div>
   </div>
 </section>
@@ -176,4 +177,20 @@
     </div>
   </div>
 </section>
+
+
+
+
+
+
+
+
+
+
+<!-- charts library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<!-- linking charts javascript -->
+<script src="{% static 'js/charts.js' %}"></script>
+
 {% endblock %}
