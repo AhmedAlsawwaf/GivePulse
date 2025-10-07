@@ -155,6 +155,13 @@ class DonorRegistrationForm(forms.Form):
             raise ValidationError("This email is already registered.")
         return email
 
+    def clean_profile_picture(self):
+        profile_picture = self.cleaned_data.get('profile_picture')
+        if profile_picture:
+            from .validators import validate_profile_image
+            validate_profile_image(profile_picture)
+        return profile_picture
+    
     def clean(self):
         cleaned = super().clean()
         p1 = cleaned.get("password1") or ""

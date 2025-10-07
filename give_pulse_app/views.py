@@ -6,15 +6,6 @@ from django.contrib import messages
 from .forms import LoginForm, DonorRegistrationForm, StaffRegistrationForm, BloodRequestForm
 from .models import User,Hospital
 
-def index(request):
-    user = None
-    if request.session.get("user_id"):
-        try:
-            user = User.objects.get(pk=request.session["user_id"])
-        except User.DoesNotExist:
-            _logout(request)
-    return render(request,"index.html",{"user": user})
-
 def contact(request):
     return render(request, "contact.html")
 
@@ -34,14 +25,14 @@ def _logout(request):
     for k in ("user_id", "user_role"):
         request.session.pop(k, None)
 
-# def home(request):
-#     user = None
-#     if request.session.get("user_id"):
-#         try:
-#             user = User.objects.get(pk=request.session["user_id"])
-#         except User.DoesNotExist:
-#             _logout(request)
-#     return render(request, "home.html", {"user": user})
+def index(request):
+    user = None
+    if request.session.get("user_id"):
+        try:
+            user = User.objects.get(pk=request.session["user_id"])
+        except User.DoesNotExist:
+            _logout(request)
+    return render(request,"index.html",{"user": user})
 
 def login_view(request):
     if request.method == "POST":

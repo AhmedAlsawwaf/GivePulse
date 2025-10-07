@@ -21,7 +21,10 @@ def validate_password_strength(raw_password: str):
     if not raw_password or not PASSWORD_RE.fullmatch(raw_password):
         raise ValidationError("Password must be 8–128 chars with upper, lower, digit, and special.")
 
-def validate_profile_image(file, *, max_mb=2, min_px=128, max_px=3000):
+def validate_profile_image(file, *, max_mb=2):
+    if not file:
+        return
+    
     if file.size > max_mb * 1024 * 1024:
         raise ValidationError(f"Image too large (>{max_mb}MB).")
 
@@ -34,14 +37,10 @@ def validate_profile_image(file, *, max_mb=2, min_px=128, max_px=3000):
         img = Image.open(file)
         img.verify()
         file.seek(pos)
-        img = Image.open(file)
-        w, h = img.size
-        if w < min_px or h < min_px:
-            raise ValidationError(f"Image is too small (min {min_px}x{min_px}).")
-        if w > max_px or h > max_px:
-            raise ValidationError(f"Image is too large (max {max_px}x{max_px}).")
-    except Exception:
-        raise ValidationError("Invalid image file.")
+    except ValidationError:
+        raise
+    except Exception as e:
+        raise ValidationError(f"Invalid image file: {str(e)}")
     finally:
         try:
             file.seek(0)

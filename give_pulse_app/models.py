@@ -114,8 +114,9 @@ class Donor(models.Model):
     profile_picture = models.ImageField(
         upload_to=donor_avatar_path, 
         blank=True,
+        null=True,
         validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png", "webp"]),validate_profile_image,],
-        help_text="JPEG/PNG/WEBP, ≤2MB, min 128x128"
+        help_text="JPEG/PNG/WEBP, ≤2MB"
     )
     abo = models.CharField(max_length=2, choices=BloodType.choices)
     rh = models.CharField(max_length=1, choices=RhType.choices)
