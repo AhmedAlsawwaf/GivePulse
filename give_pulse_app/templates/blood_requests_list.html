@@ -31,8 +31,33 @@
                                     <p class="card-text">
                                         <strong>Location:</strong> {{ request.city.name }}<br>
                                         <strong>Units Needed:</strong> {{ request.units_requested }}<br>
+                                        <strong>Units Fulfilled:</strong> {{ request.units_fulfilled }}<br>
                                         <strong>Deadline:</strong> {{ request.deadline_at|date:"M d, Y" }}
                                     </p>
+                                    
+                                    <!-- Progress Bar -->
+                                    {% if request.units_fulfilled > 0 %}
+                                        <div class="mb-2">
+                                            {% widthratio request.units_fulfilled request.units_requested 100 as progress_percent %}
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar {% if request.status == 'fulfilled' %}bg-success{% elif request.status == 'partial' %}bg-warning{% else %}bg-info{% endif %}" 
+                                                     role="progressbar" 
+                                                     style="width: {{ progress_percent }}%" 
+                                                     aria-valuenow="{{ progress_percent }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                    {{ request.units_fulfilled }}/{{ request.units_requested }}
+                                                </div>
+                                            </div>
+                                            <small class="text-muted">
+                                                {% if request.units_fulfilled < request.units_requested %}
+                                                    {{ request.units_requested|add:"-"|add:request.units_fulfilled }} more needed
+                                                {% else %}
+                                                    Complete! 🎉
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    {% endif %}
                                     {% if request.notes %}
                                         <p class="card-text">
                                             <small class="text-muted">{{ request.notes|truncatewords:20 }}</small>

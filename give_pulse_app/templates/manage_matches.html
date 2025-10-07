@@ -88,6 +88,8 @@
                                                     <span class="badge bg-success">Accepted</span>
                                                 {% elif match.status == 'declined' %}
                                                     <span class="badge bg-danger">Declined</span>
+                                                {% elif match.status == 'donated' %}
+                                                    <span class="badge bg-success">Donated</span>
                                                 {% else %}
                                                     <span class="badge bg-secondary">{{ match.status|title }}</span>
                                                 {% endif %}
@@ -108,12 +110,23 @@
                                                         </a>
                                                     </div>
                                                 {% elif match.status == 'accepted' %}
-                                                    <small class="text-success">
-                                                        <i class="bi bi-check-circle"></i> Accepted {{ match.accepted_at|date:"M d, Y" }}
-                                                    </small>
+                                                    <div class="d-flex flex-column gap-1">
+                                                        <small class="text-success">
+                                                            <i class="bi bi-check-circle"></i> Accepted {{ match.accepted_at|date:"M d, Y" }}
+                                                        </small>
+                                                        {% if match.appointment %}
+                                                            <a href="{% url 'complete_donation' match.appointment.id %}" class="btn btn-sm btn-success">
+                                                                <i class="bi bi-heart-pulse"></i> Complete Donation
+                                                            </a>
+                                                        {% endif %}
+                                                    </div>
                                                 {% elif match.status == 'declined' %}
                                                     <small class="text-danger">
                                                         <i class="bi bi-x-circle"></i> Declined {{ match.declined_at|date:"M d, Y" }}
+                                                    </small>
+                                                {% elif match.status == 'donated' %}
+                                                    <small class="text-success">
+                                                        <i class="bi bi-award"></i> Donated {{ match.donated_at|date:"M d, Y" }}
                                                     </small>
                                                 {% endif %}
                                             </td>

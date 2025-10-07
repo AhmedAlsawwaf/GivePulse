@@ -30,4 +30,12 @@ urlpatterns = [
     
     # Donor management
     path("donor/matches/", views.donor_matches, name="donor_matches"),
+    path("donor/appointments/", views.donor_appointments, name="donor_appointments"),
+    path("donor/donations/", views.donor_donations, name="donor_donations"),
+    
+    # QR Code and Donation Management
+    path("verify-qr/", views.verify_qr_code, name="verify_qr"),
+    path("verify-certificate/", views.verify_certificate, name="verify_certificate"),
+    path("complete-donation/<int:appointment_id>/", views.complete_donation, name="complete_donation"),
+    path("download-certificate/<int:donation_id>/", views.download_certificate, name="download_certificate"),
 ]

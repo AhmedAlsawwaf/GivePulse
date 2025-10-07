@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Complete Donation - GivePulse{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-heart-pulse"></i> Complete Donation
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-info-circle"></i> Donation Confirmation</h6>
+                        <p class="mb-0">Please verify the donor information and confirm the donation completion.</p>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Donor Information</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>Name:</strong> {{ donor.user.first_name }} {{ donor.user.last_name }}</li>
+                                <li><strong>Email:</strong> {{ donor.user.email }}</li>
+                                <li><strong>Blood Type:</strong> {{ donor.abo }}{{ donor.rh }}</li>
+                                <li><strong>City:</strong> {{ donor.city.name }}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Appointment Details</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>Appointment ID:</strong> {{ appointment.id }}</li>
+                                <li><strong>Date:</strong> {{ appointment.window_start|date:"M d, Y" }}</li>
+                                <li><strong>Time:</strong> {{ appointment.window_start|date:"H:i" }} - {{ appointment.window_end|date:"H:i" }}</li>
+                                <li><strong>Hospital:</strong> {{ blood_request.hospital.name }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6 class="text-primary">Blood Request Details</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Request ID:</strong> {{ blood_request.id }}</li>
+                            <li><strong>Blood Type Needed:</strong> {{ blood_request.abo }}{{ blood_request.rh }}</li>
+                            <li><strong>Units Requested:</strong> {{ blood_request.units_requested }}</li>
+                            <li><strong>Priority:</strong> {{ blood_request.priority }}</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6 class="text-primary">QR Code Verification</h6>
+                        {% if appointment.qr_code_image %}
+                            <img src="{{ appointment.qr_code_image.url }}" alt="QR Code" class="img-fluid" style="max-width: 150px;">
+                            <p class="text-muted small mt-2">Verification Code: GP{{ appointment.id|stringformat:"06d" }}{{ appointment.match.id|stringformat:"06d" }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="alert alert-warning mt-4">
+                        <h6><i class="bi bi-exclamation-triangle"></i> Important</h6>
+                        <ul class="mb-0">
+                            <li>Verify the donor's identity matches the appointment</li>
+                            <li>Confirm the blood type compatibility</li>
+                            <li>Ensure the donation process is completed successfully</li>
+                            <li>A certificate will be automatically generated upon confirmation</li>
+                        </ul>
+                    </div>
+                    
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Confirm Donation Completion
+                            </button>
+                            <a href="{% url 'staff_blood_requests' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-arrow-left"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
