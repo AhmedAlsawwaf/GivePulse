@@ -122,6 +122,7 @@ class Donor(models.Model):
     rh = models.CharField(max_length=1, choices=RhType.choices)
     city = models.ForeignKey(City, on_delete=models.PROTECT, related_name="donors")
     last_donation = models.DateField(null=True, blank=True)
+    cooldown_until = models.DateTimeField(null=True, blank=True, help_text="Donor cannot match until this date")
     eligibility_consent = models.BooleanField(default=False)
     public_alias = models.CharField(max_length=50, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -146,6 +147,24 @@ class Donor(models.Model):
             models.Index(fields=["city"]),
             models.Index(fields=["abo", "rh"]),
         ]
+
+    def is_in_cooldown(self):
+        """Check if donor is in cooldown period"""
+        if not self.cooldown_until:
+            return False
+        from django.utils import timezone
+        return timezone.now() < self.cooldown_until
+    
+    def can_donate(self):
+        """Check if donor can donate (not in cooldown)"""
+        return not self.is_in_cooldown()
+    
+    def set_cooldown(self, days=56):
+        """Set cooldown period for donor"""
+        from django.utils import timezone
+        from datetime import timedelta
+        self.cooldown_until = timezone.now() + timedelta(days=days)
+        self.save(update_fields=['cooldown_until'])
 
     def __str__(self):
         return f"{self.user} ({self.abo}{self.rh})"

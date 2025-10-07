@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage Matches{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-people"></i> Manage Matches</h2>
+                <a href="{% url 'staff_blood_requests' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left"></i> Back to Requests
+                </a>
+            </div>
+
+            <!-- Blood Request Info -->
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-droplet"></i> {{ blood_request.abo }}{{ blood_request.rh }} Blood Request
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Hospital:</strong> {{ blood_request.hospital.name }}</p>
+                            <p><strong>Location:</strong> {{ blood_request.city.name }}</p>
+                            <p><strong>Deadline:</strong> {{ blood_request.deadline_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Units Needed:</strong> {{ blood_request.units_requested }}</p>
+                            <p><strong>Units Fulfilled:</strong> {{ blood_request.units_fulfilled }}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge bg-{% if blood_request.status == 'open' %}success{% elif blood_request.status == 'partial' %}warning{% else %}secondary{% endif %}">
+                                    {{ blood_request.status|title }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    {% if blood_request.notes %}
+                        <hr>
+                        <p><strong>Notes:</strong> {{ blood_request.notes }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Matches -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-people"></i> Donor Matches ({{ matches|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if matches %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Donor</th>
+                                        <th>Blood Type</th>
+                                        <th>Contact</th>
+                                        <th>Status</th>
+                                        <th>Matched</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for match in matches %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ match.donor.user.first_name }} {{ match.donor.user.last_name }}</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-danger">{{ match.donor.abo }}{{ match.donor.rh }}</span>
+                                            </td>
+                                            <td>
+                                                <small>
+                                                    {{ match.donor.user.email }}<br>
+                                                    {% if match.donor.user.phone %}{{ match.donor.user.phone }}{% endif %}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                {% if match.status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elif match.status == 'accepted' %}
+                                                    <span class="badge bg-success">Accepted</span>
+                                                {% elif match.status == 'declined' %}
+                                                    <span class="badge bg-danger">Declined</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ match.status|title }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <small>{{ match.created_at|date:"M d, Y H:i" }}</small>
+                                            </td>
+                                            <td>
+                                                {% if match.status == 'pending' %}
+                                                    <div class="btn-group" role="group">
+                                                        <a href="{% url 'accept_match' match.id %}" class="btn btn-sm btn-success" 
+                                                           onclick="return confirm('Accept this match? This will set the donor in cooldown period.')">
+                                                            <i class="bi bi-check"></i> Accept
+                                                        </a>
+                                                        <a href="{% url 'decline_match' match.id %}" class="btn btn-sm btn-danger"
+                                                           onclick="return confirm('Decline this match?')">
+                                                            <i class="bi bi-x"></i> Decline
+                                                        </a>
+                                                    </div>
+                                                {% elif match.status == 'accepted' %}
+                                                    <small class="text-success">
+                                                        <i class="bi bi-check-circle"></i> Accepted {{ match.accepted_at|date:"M d, Y" }}
+                                                    </small>
+                                                {% elif match.status == 'declined' %}
+                                                    <small class="text-danger">
+                                                        <i class="bi bi-x-circle"></i> Declined {{ match.declined_at|date:"M d, Y" }}
+                                                    </small>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-people display-4 text-muted"></i>
+                            <h5 class="text-muted mt-3">No Matches Yet</h5>
+                            <p class="text-muted">No donors have matched this blood request yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

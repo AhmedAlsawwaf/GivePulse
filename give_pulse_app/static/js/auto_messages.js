@@ -1,10 +1,11 @@
 
 document.addEventListener("DOMContentLoaded", () => {
-  const messages = document.querySelectorAll(".fade-message");
+  const messages = document.querySelectorAll(".alert");
   messages.forEach(msg => {
     setTimeout(() => {
-      msg.classList.add("fade-out");
-      setTimeout(() => msg.remove(), 600);
-    }, 3000);
+      msg.style.transition = 'opacity 0.5s';
+      msg.style.opacity = '0';
+      setTimeout(() => msg.remove(), 500);
+    }, 5000);
   });
 });

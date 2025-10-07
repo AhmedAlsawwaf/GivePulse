@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Matches{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-heart"></i> My Blood Donation Matches</h2>
+                <div>
+                    <a href="{% url 'blood_requests_list' %}" class="btn btn-primary me-2">
+                        <i class="bi bi-droplet"></i> Browse Requests
+                    </a>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-house"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+
+            {% if matches %}
+                <div class="row">
+                    {% for match in matches %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-{% if match.status == 'pending' %}warning{% elif match.status == 'accepted' %}success{% elif match.status == 'declined' %}danger{% else %}secondary{% endif %} text-white">
+                                    <h5 class="card-title mb-0">
+                                        <i class="bi bi-droplet"></i> {{ match.blood_request.abo }}{{ match.blood_request.rh }}
+                                        <span class="badge bg-light text-dark ms-2">{{ match.status|title }}</span>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="text-muted">{{ match.blood_request.hospital.name }}</h6>
+                                    <p class="card-text">
+                                        <strong>Location:</strong> {{ match.blood_request.city.name }}<br>
+                                        <strong>Units Needed:</strong> {{ match.blood_request.units_requested }}<br>
+                                        <strong>Deadline:</strong> {{ match.blood_request.deadline_at|date:"M d, Y" }}<br>
+                                        <strong>Matched:</strong> {{ match.created_at|date:"M d, Y" }}
+                                    </p>
+                                    
+                                    {% if match.status == 'pending' %}
+                                        <div class="alert alert-info">
+                                            <i class="bi bi-clock"></i> Your match is pending review by hospital staff.
+                                        </div>
+                                    {% elif match.status == 'accepted' %}
+                                        <div class="alert alert-success">
+                                            <i class="bi bi-check-circle"></i> Your match has been accepted! 
+                                            <br><small>Accepted on {{ match.accepted_at|date:"M d, Y" }}</small>
+                                        </div>
+                                    {% elif match.status == 'declined' %}
+                                        <div class="alert alert-danger">
+                                            <i class="bi bi-x-circle"></i> Your match was declined.
+                                            <br><small>Declined on {{ match.declined_at|date:"M d, Y" }}</small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="card-footer bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            Match ID: #{{ match.id }}
+                                        </small>
+                                        <a href="{% url 'blood_request_detail' match.blood_request.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> View Request
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-heart display-1 text-muted"></i>
+                    <h3 class="text-muted mt-3">No Matches Yet</h3>
+                    <p class="text-muted">You haven't matched any blood requests yet.</p>
+                    <a href="{% url 'blood_requests_list' %}" class="btn btn-primary">
+                        <i class="bi bi-droplet"></i> Browse Blood Requests
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

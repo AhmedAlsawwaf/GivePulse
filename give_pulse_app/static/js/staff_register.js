@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("✅ staff_register.js loaded");
 
   // 👁 Password toggle logic
   const toggles = document.querySelectorAll(".toggle-password");
