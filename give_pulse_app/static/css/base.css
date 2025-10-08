@@ -1,60 +1,172 @@
 :root {
   --primary-red: #ed3744;
   --secondary-green: #a5b68e;
-  --light-gray: #f5f5f5;
+  --light-gray: #f8f9fa;
   --dark-text: #212121;
   --white: #fff;
 }
 
+/* ===== Global ===== */
 body {
   background-color: var(--white);
   color: var(--dark-text);
   font-family: "Poppins", sans-serif;
 }
-
-html,
-body {
+html, body {
   height: 100%;
   margin: 0;
   display: flex;
   flex-direction: column;
 }
+main { flex: 1; }
 
-main {
-  flex: 1;
-}
-
-/* Navbar */
+/* ===== Navbar ===== */
 .navbar {
   background-color: var(--white);
-  padding: 0.4rem 0;
+  padding: 0.8rem 0;
+  transition: all 0.3s ease;
 }
-
-.navbar-brand img {
-  max-height: 60px;
-  width: auto;
-  animation: pulse 2s infinite;
+.logo {
+  height: 45px;
+  transition: transform 0.3s ease;
 }
-
-.navbar-brand h1 {
-  font-size: 1.6rem;
-  font-weight: bold;
-  margin: 0;
-  animation: pulseText 2s infinite;
-}
+.logo:hover { transform: scale(1.1); }
 
 .nav-link {
   color: var(--secondary-green);
   font-weight: 600;
-  margin-left: 15px;
+  margin: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+.nav-link:hover,
+.nav-link.active {
+  color: var(--primary-red);
+  transform: translateY(-2px);
+}
+/* ✅ حذف الخط تحت العنصر */
+.nav-link::after {
+  display: none;
+}
+
+/* ===== Dropdown Toggle ===== */
+.user-toggle {
+  color: var(--secondary-green);
+  font-weight: 600;
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  position: relative;
   transition: color 0.3s ease;
 }
 
-.nav-link:hover {
+/* ✅ إضافة سهم صغير بجانب اسم المستخدم */
+.user-toggle::after {
+  content: "▾";
+  font-size: 0.7rem;
+  margin-left: 5px;
+  color: var(--secondary-green);
+  transition: transform 0.2s ease;
+}
+.nav-item.dropdown.show .user-toggle::after {
+  transform: rotate(180deg);
   color: var(--primary-red);
 }
 
-/* Footer */
+/* عند التفاعل */
+.user-toggle:hover,
+.user-toggle:focus,
+.nav-item.dropdown.show .user-toggle {
+  color: var(--primary-red) !important;
+}
+.username {
+  color: var(--primary-red);
+  font-weight: 600;
+}
+
+/* ===== Role Badge ===== */
+.role-badge {
+  display: inline-block !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.25em 0.6em;
+  line-height: 1;
+  color: var(--white);
+}
+.role-badge.donor { background-color: var(--primary-red); }
+.role-badge.staff { background-color: var(--secondary-green); }
+
+/* ===== Dropdown Menu ===== */
+.custom-dropdown {
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  min-width: 210px;
+  padding: 0.5rem 0.6rem;
+}
+.custom-dropdown .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  color: var(--dark-text);
+  border-radius: 8px;
+  padding: 10px 14px;
+  transition: all 0.3s ease;
+}
+.custom-dropdown .dropdown-item:hover {
+  background-color: var(--light-gray);
+  color: var(--primary-red);
+  transform: translateX(4px);
+}
+.custom-dropdown .dropdown-item i {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+.custom-dropdown .dropdown-item:hover i {
+  transform: scale(1.15);
+  color: var(--primary-red);
+}
+.logout-item { color: var(--primary-red) !important; font-weight: 600 !important; }
+.logout-item:hover { background-color: rgba(237, 55, 68, 0.08); }
+.dropdown-divider { border-top: 1.5px solid var(--light-gray); margin: 0.4rem 0; }
+
+/* ===== Buttons ===== */
+.btn-primary-red {
+  background-color: var(--primary-red);
+  color: var(--white) !important;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+}
+.btn-primary-red:hover {
+  background-color: #d32f2f;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(237, 55, 68, 0.3);
+}
+
+.btn-secondary-custom {
+  background-color: var(--secondary-green);
+  color: var(--white) !important;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+}
+.btn-secondary-custom:hover {
+  background-color: #8e9f74;
+  transform: translateY(-2px);
+}
+
+/* ===== Footer ===== */
 footer {
   background-color: var(--secondary-green);
   color: var(--white);
@@ -63,23 +175,18 @@ footer {
   font-weight: bold;
   margin-top: auto;
 }
-
 footer a {
   color: var(--white);
   text-decoration: underline;
   margin: 0 10px;
 }
+footer a:hover { color: #f5f5f5; }
 
-footer a:hover {
-  color: #f5f5f5;
-}
-
-/* Pulse Animations */
+/* ===== Animations ===== */
 @keyframes pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.1); }
 }
-
 @keyframes pulseText {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }

@@ -4,75 +4,90 @@
 {% block title %}Hospital Blood Requests{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2><i class="bi bi-hospital"></i> {{ hospital.name }} - Blood Requests</h2>
-                <div>
-                    <a href="{% url 'blood_request_new' %}" class="btn btn-success me-2">
-                        <i class="bi bi-plus-circle"></i> New Request
-                    </a>
-                    <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
-                        <i class="bi bi-house"></i> Dashboard
-                    </a>
-                </div>
+<section class="hospital-requests-section py-5">
+  <div class="container">
+    
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeInDown">
+      <h2>
+      {{ hospital.name }} 
+        <span class="text-secondary-green">Blood Requests</span>
+      </h2>
+      <div>
+        <a href="{% url 'blood_request_new' %}" class="btn btn-primary-red me-2">
+          <i class="bi bi-plus-circle me-1"></i> New Request
+        </a>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary-custom">
+          <i class="bi bi-house-door me-1"></i> Dashboard
+        </a>
+      </div>
+    </div>
+
+    <!-- Requests List -->
+    {% if blood_requests %}
+      <div class="row">
+        {% for request in blood_requests %}
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card request-card shadow-sm border-0 rounded-4 animate__animated animate__fadeInUp">
+
+            <!-- Status Header -->
+            <div class="card-header border-0 text-white 
+              {% if request.status == 'open' %} bg-success 
+              {% elif request.status == 'partial' %} bg-warning text-dark 
+              {% elif request.status == 'fulfilled' %} bg-secondary 
+              {% else %} bg-danger {% endif %}">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="fw-semibold mb-0">
+                  <i class="bi bi-droplet me-2"></i>{{ request.abo }}{{ request.rh }}
+                </h5>
+                <span class="badge bg-light text-dark">{{ request.status|title }}</span>
+              </div>
             </div>
 
-            {% if blood_requests %}
-                <div class="row">
-                    {% for request in blood_requests %}
-                        <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card h-100 shadow-sm">
-                                <div class="card-header bg-{% if request.status == 'open' %}success{% elif request.status == 'partial' %}warning{% elif request.status == 'fulfilled' %}secondary{% else %}danger{% endif %} text-white">
-                                    <h5 class="card-title mb-0">
-                                        <i class="bi bi-droplet"></i> {{ request.abo }}{{ request.rh }}
-                                        <span class="badge bg-light text-dark ms-2">{{ request.status|title }}</span>
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <p class="card-text">
-                                        <strong>Units:</strong> {{ request.units_fulfilled }}/{{ request.units_requested }}<br>
-                                        <strong>Location:</strong> {{ request.city.name }}<br>
-                                        <strong>Deadline:</strong> {{ request.deadline_at|date:"M d, Y" }}<br>
-                                        <strong>Created:</strong> {{ request.created_at|date:"M d, Y" }}
-                                    </p>
-                                    {% if request.notes %}
-                                        <p class="card-text">
-                                            <small class="text-muted">{{ request.notes|truncatewords:15 }}</small>
-                                        </p>
-                                    {% endif %}
-                                </div>
-                                <div class="card-footer bg-light">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">
-                                            ID: #{{ request.id }}
-                                        </small>
-                                        <div class="btn-group" role="group">
-                                            <a href="{% url 'blood_request_detail' request.id %}" class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-eye"></i> View
-                                            </a>
-                                            <a href="{% url 'manage_matches' request.id %}" class="btn btn-sm btn-outline-success">
-                                                <i class="bi bi-people"></i> Manage
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="text-center py-5">
-                    <i class="bi bi-droplet display-1 text-muted"></i>
-                    <h3 class="text-muted mt-3">No Blood Requests</h3>
-                    <p class="text-muted">Your hospital hasn't created any blood requests yet.</p>
-                    <a href="{% url 'blood_request_new' %}" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Create First Request
-                    </a>
-                </div>
-            {% endif %}
+            <!-- Body -->
+            <div class="card-body">
+              <p class="mb-1"><strong>Units:</strong> {{ request.units_fulfilled }}/{{ request.units_requested }}</p>
+              <p class="mb-1"><strong>City:</strong> {{ request.city.name }}</p>
+              <p class="mb-1"><strong>Deadline:</strong> {{ request.deadline_at|date:"M d, Y" }}</p>
+              <p class="mb-3"><strong>Created:</strong> {{ request.created_at|date:"M d, Y" }}</p>
+
+              {% if request.notes %}
+                <p class="small text-muted fst-italic border-start ps-2">
+                  “{{ request.notes|truncatewords:15 }}”
+                </p>
+              {% endif %}
+            </div>
+
+            <!-- Footer -->
+            <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+              <small class="text-muted">ID: #{{ request.id }}</small>
+              <div class="d-flex gap-2">
+                <a href="{% url 'blood_request_detail' request.id %}" 
+                   class="btn btn-secondary-custom">
+                  <i class="bi bi-eye"></i> View
+                </a>
+                <a href="{% url 'manage_matches' request.id %}" 
+                   class="btn btn-sm btn-primary-red">
+                  <i class="bi bi-people"></i> Manage
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
-    </div>
-</div>
+        {% endfor %}
+      </div>
+
+    {% else %}
+      <!-- Empty State -->
+      <div class="text-center py-5 animate__animated animate__fadeIn">
+        <i class="bi bi-droplet-half display-1 text-secondary-green mb-3"></i>
+        <h3 class="fw-bold text-primary-red">No Blood Requests Yet</h3>
+        <p class="text-muted mb-4">Your hospital hasn’t created any blood requests.</p>
+        <a href="{% url 'blood_request_new' %}" class="btn btn-primary-red">
+          <i class="bi bi-plus-circle"></i> Create First Request
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</section>
 {% endblock %}

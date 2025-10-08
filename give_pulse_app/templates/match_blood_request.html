@@ -4,66 +4,101 @@
 {% block title %}Match Blood Request{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<section class="match-request-section py-5">
+  <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">
-                        <i class="bi bi-heart"></i> Match Blood Request
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <h5><i class="bi bi-info-circle"></i> Request Details</h5>
-                        <p><strong>Hospital:</strong> {{ blood_request.hospital.name }}</p>
-                        <p><strong>Blood Type:</strong> {{ blood_request.abo }}{{ blood_request.rh }}</p>
-                        <p><strong>Location:</strong> {{ blood_request.city.name }}</p>
-                        <p><strong>Deadline:</strong> {{ blood_request.deadline_at|date:"M d, Y H:i" }}</p>
-                    </div>
+      <div class="col-lg-8">
 
-                    {% if is_compatible %}
-                        <div class="alert alert-success">
-                            <h5><i class="bi bi-check-circle"></i> Blood Type Compatibility Confirmed</h5>
-                            <p>Your blood type ({{ user.donor.abo }}{{ user.donor.rh }}) is compatible with this request ({{ blood_request.abo }}{{ blood_request.rh }}).</p>
-                        </div>
+        <!-- Main Card -->
+        <div class="card border-0 shadow rounded-4 animate__animated animate__fadeInUp">
+          <!-- Header -->
+          <div class="card-header bg-gradient-red text-white py-3">
+            <h4 class="text-secondary-green">
+              <i class="bi bi-heart-fill me-2"></i> Match Blood Request
+            </h4>
+          </div>
 
-                        <div class="alert alert-warning">
-                            <h5><i class="bi bi-exclamation-triangle"></i> Important Information</h5>
-                            <ul class="mb-0">
-                                <li>By matching this request, you are committing to donate blood if accepted by the hospital staff.</li>
-                                <li>You will be contacted by the hospital for scheduling your donation appointment.</li>
-                                <li>After donation, you will have an 8-week cooldown period before you can match new requests.</li>
-                                <li>Please ensure you are healthy and meet all donation requirements.</li>
-                            </ul>
-                        </div>
+          <!-- Body -->
+          <div class="card-body p-4">
 
-                        <form method="post">
-                            {% csrf_token %}
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-success btn-lg">
-                                    <i class="bi bi-heart"></i> Confirm Your Match
-                                </button>
-                                <a href="{% url 'blood_request_detail' blood_request.id %}" class="btn btn-outline-secondary">
-                                    <i class="bi bi-arrow-left"></i> Cancel
-                                </a>
-                            </div>
-                        </form>
-                    {% else %}
-                        <div class="alert alert-danger">
-                            <h5><i class="bi bi-x-circle"></i> Blood Type Incompatible</h5>
-                            <p>Your blood type ({{ user.donor.abo }}{{ user.donor.rh }}) is not compatible with this request ({{ blood_request.abo }}{{ blood_request.rh }}).</p>
-                            <p>You cannot match this request due to medical compatibility requirements.</p>
-                        </div>
-                        <div class="d-grid">
-                            <a href="{% url 'blood_request_detail' blood_request.id %}" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left"></i> Back to Request Details
-                            </a>
-                        </div>
-                    {% endif %}
-                </div>
+            <!-- Request Info -->
+            <div class="alert bg-light border-start border-4 border-secondary-green shadow-sm">
+              <h5 class="fw-semibold text-primary-red mb-3">
+                <i class="bi bi-info-circle me-2"></i> Request Details
+              </h5>
+              <ul class="list-unstyled small mb-0">
+                <li><strong>Hospital:</strong> {{ blood_request.hospital.name }}</li>
+                <li><strong>Blood Type:</strong> {{ blood_request.abo }}{{ blood_request.rh }}</li>
+                <li><strong>Location:</strong> {{ blood_request.city.name }}</li>
+                <li><strong>Deadline:</strong> {{ blood_request.deadline_at|date:"M d, Y H:i" }}</li>
+              </ul>
             </div>
+
+            {% if is_compatible %}
+              <!-- Compatibility Confirmed -->
+              <div class="alert alert-success border-0 rounded-3 shadow-sm mt-4">
+                <h5 class="fw-bold">
+                  <i class="bi bi-check-circle-fill me-2"></i> Blood Type Compatibility Confirmed
+                </h5>
+                <p class="mb-0">
+                  Your blood type 
+                  <span class="fw-bold text-primary-red">({{ user.donor.abo }}{{ user.donor.rh }})</span>
+                  is compatible with this request 
+                  <span class="fw-bold text-secondary-green">({{ blood_request.abo }}{{ blood_request.rh }})</span>.
+                </p>
+              </div>
+
+              <!-- Important Notes -->
+              <div class="alert bg-warning bg-opacity-25 border-warning mt-4 rounded-3 shadow-sm">
+                <h5 class="fw-bold text-dark mb-2">
+                  <i class="bi bi-exclamation-triangle me-2"></i> Important Information
+                </h5>
+                <ul class="mb-0 small text-muted">
+                  <li>By matching this request, you commit to donating blood if accepted by hospital staff.</li>
+                  <li>The hospital will contact you for scheduling your appointment.</li>
+                  <li>After donation, an 8-week cooldown applies before your next match.</li>
+                  <li>Please ensure you’re healthy and meet all donor eligibility criteria.</li>
+                </ul>
+              </div>
+
+              <!-- Buttons -->
+              <form method="post" class="mt-4">
+                {% csrf_token %}
+                <div class="d-grid gap-3">
+                  <button type="submit" class="btn btn-primary-red btn-lg rounded-3">
+                    <i class="bi bi-heart-fill me-2"></i> Confirm Your Match
+                  </button>
+                  <a href="{% url 'blood_request_detail' blood_request.id %}" class="btn btn-outline-secondary rounded-3">
+                    <i class="bi bi-arrow-left"></i> Cancel
+                  </a>
+                </div>
+              </form>
+
+            {% else %}
+              <!-- Incompatible -->
+              <div class="alert alert-danger border-0 rounded-3 shadow-sm mt-4">
+                <h5 class="fw-bold">
+                  <i class="bi bi-x-circle-fill me-2"></i> Blood Type Incompatible
+                </h5>
+                <p>
+                  Your blood type <strong>{{ user.donor.abo }}{{ user.donor.rh }}</strong> 
+                  is not compatible with this request (<strong>{{ blood_request.abo }}{{ blood_request.rh }}</strong>).
+                </p>
+                <p class="mb-0 text-muted small">
+                  You cannot match this request due to medical compatibility requirements.
+                </p>
+              </div>
+
+              <div class="d-grid mt-4">
+                <a href="{% url 'blood_request_detail' blood_request.id %}" class="btn btn-secondary-custom">
+                  <i class="bi bi-arrow-left"></i> Back to Request Details
+                </a>
+              </div>
+            {% endif %}
+          </div>
         </div>
+      </div>
     </div>
-</div>
+  </div>
+</section>
 {% endblock %}

@@ -4,16 +4,59 @@
 {% block title %}Blood Request Details{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2><i class="bi bi-droplet"></i> Blood Request Details</h2>
-                <a href="{% url 'blood_requests_list' %}" class="btn btn-outline-primary">
-                    <i class="bi bi-arrow-left"></i> Back to Requests
-                </a>
-            </div>
+<section class="blood-request-details py-5">
+  <div class="container">
 
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 animate__animated animate__fadeInDown">
+      <h2 class="text-secondary-green">
+         Blood Request Details
+      </h2>
+      <a href="{% url 'blood_requests_list' %}" class="btn btn-secondary-custom">
+        <i class="bi bi-arrow-left"></i> Back to Requests
+      </a>
+    </div>
+
+    <!-- Request Card -->
+    <div class="card shadow border-0 rounded-4 overflow-hidden animate__animated animate__fadeInUp">
+      <div class="card-header text-white bg-gradient-red">
+        <h4 class="fw-bold text-primary-red mb-0">
+          <i class="bi bi-droplet me-2"></i>
+        </h4>
+      </div>
+
+      <div class="card-body bg-white">
+        <div class="row g-4">
+          <!-- Hospital Information -->
+          <div class="col-md-6">
+            <h5 class="text-secondary-green fw-semibold mb-3">
+              <i class="bi bi-hospital me-2"></i> Hospital Information
+            </h5>
+            <ul class="list-unstyled small">
+              <li><strong>Hospital:</strong> {{ blood_request.hospital.name }}</li>
+              <li><strong>Location:</strong> {{ blood_request.city.name }}</li>
+              <li><strong>Contact:</strong> {{ blood_request.hospital.phone }}</li>
+            </ul>
+          </div>
+
+          <!-- Request Details -->
+          <div class="col-md-6">
+            <h5 class="text-secondary-green fw-semibold mb-3">
+              <i class="bi bi-info-circle me-2"></i> Request Details
+            </h5>
+            <ul class="list-unstyled small">
+              <li><strong>Blood Type:</strong> {{ blood_request.abo }}{{ blood_request.rh }}</li>
+              <li><strong>Units Needed:</strong> {{ blood_request.units_requested }}</li>
+              <li><strong>Units Fulfilled:</strong> {{ blood_request.units_fulfilled }}</li>
+              <li><strong>Deadline:</strong> {{ blood_request.deadline_at|date:"M d, Y H:i" }}</li>
+              <li>
+                <strong>Status:</strong>
+                <span class="badge bg-{% if blood_request.status == 'open' %}success{% elif blood_request.status == 'partial' %}warning text-dark{% else %}secondary{% endif %}">
+                  {{ blood_request.status|title }}
+                </span>
+              </li>
+            </ul>
+          </div>
             <div class="card shadow">
                 <div class="card-header bg-danger text-white">
                     <h4 class="mb-0">
@@ -117,6 +160,60 @@
                 </div>
             </div>
         </div>
+
+        {% if blood_request.notes %}
+          <hr>
+          <h6 class="text-secondary-green fw-semibold">
+            <i class="bi bi-journal-text me-2"></i> Additional Notes
+          </h6>
+          <p class="fst-italic text-muted ps-3 border-start border-3 border-secondary-green">
+            {{ blood_request.notes }}
+          </p>
+        {% endif %}
+
+        <hr>
+        <div class="row">
+          <div class="col-md-6">
+            <small class="text-muted">
+              <strong>Created by:</strong> {{ blood_request.created_by.user.first_name }} {{ blood_request.created_by.user.last_name }}<br>
+              <strong>Posted:</strong> {{ blood_request.created_at|date:"M d, Y H:i" }}
+            </small>
+          </div>
+          <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            <small class="text-muted"><strong>Request ID:</strong> #{{ blood_request.id }}</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="card-footer bg-light text-center py-3">
+        {% if user.donor and blood_request.status == 'open' and not already_matched %}
+          {% if in_cooldown %}
+            <div class="alert alert-warning d-inline-flex align-items-center gap-2 mb-0 py-2 px-3">
+              <i class="bi bi-clock"></i>
+              <span>You are in cooldown until {{ user.donor.cooldown_until|date:"M d, Y H:i" }}</span>
+            </div>
+          {% elif is_compatible %}
+            <a href="{% url 'match_blood_request' blood_request.id %}" class="btn btn-primary-red px-4">
+              <i class="bi bi-heart me-2"></i> Match This Request
+            </a>
+          {% else %}
+            <div class="alert alert-danger d-inline-flex align-items-center gap-2 mb-0 py-2 px-3">
+              <i class="bi bi-x-circle"></i>
+              <span>Your blood type ({{ user.donor.abo }}{{ user.donor.rh }}) is not compatible with this request.</span>
+            </div>
+          {% endif %}
+        {% elif user.donor and already_matched %}
+          <div class="alert alert-info d-inline-flex align-items-center gap-2 mb-0 py-2 px-3">
+            <i class="bi bi-check-circle"></i> You have already matched this request.
+          </div>
+        {% elif user.donor and blood_request.status != 'open' %}
+          <div class="alert alert-secondary d-inline-flex align-items-center gap-2 mb-0 py-2 px-3">
+            <i class="bi bi-lock"></i> This request is no longer open.
+          </div>
+        {% endif %}
+      </div>
     </div>
-</div>
+  </div>
+</section>
 {% endblock %}
