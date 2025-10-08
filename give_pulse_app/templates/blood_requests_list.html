@@ -83,4 +83,85 @@
     {% endif %}
   </div>
 </section>
+            {% if blood_requests %}
+                <div class="row">
+                    {% for request in blood_requests %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-danger text-white">
+                                    <h5 class="card-title mb-0">
+                                        <i class="bi bi-droplet"></i> {{ request.abo }}{{ request.rh }}
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="text-muted">{{ request.hospital.name }}</h6>
+                                    <p class="card-text">
+                                        <strong>Location:</strong> {{ request.city.name }}<br>
+                                        <strong>Units Needed:</strong> {{ request.units_requested }}<br>
+                                        <strong>Units Fulfilled:</strong> {{ request.units_fulfilled }}<br>
+                                        <strong>Deadline:</strong> {{ request.deadline_at|date:"M d, Y" }}
+                                    </p>
+                                    
+                                    <!-- Progress Bar -->
+                                    {% if request.units_fulfilled > 0 %}
+                                        <div class="mb-2">
+                                            {% widthratio request.units_fulfilled request.units_requested 100 as progress_percent %}
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar {% if request.status == 'fulfilled' %}bg-success{% elif request.status == 'partial' %}bg-warning{% else %}bg-info{% endif %}" 
+                                                     role="progressbar" 
+                                                     style="width: {{ progress_percent }}%" 
+                                                     aria-valuenow="{{ progress_percent }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                    {{ request.units_fulfilled }}/{{ request.units_requested }}
+                                                </div>
+                                            </div>
+                                            <small class="text-muted">
+                                                {% if request.units_fulfilled < request.units_requested %}
+                                                    {{ request.units_requested|add:"-"|add:request.units_fulfilled }} more needed
+                                                {% else %}
+                                                    Complete! 🎉
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    {% endif %}
+                                    {% if request.notes %}
+                                        <p class="card-text">
+                                            <small class="text-muted">{{ request.notes|truncatewords:20 }}</small>
+                                        </p>
+                                    {% endif %}
+                                </div>
+                                <div class="card-footer bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            Posted {{ request.created_at|timesince }} ago
+                                        </small>
+                                        <a href="{% url 'blood_request_detail' request.id %}" class="btn btn-sm btn-primary">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-droplet display-1 text-muted"></i>
+                    <h3 class="text-muted mt-3">No Blood Requests Available</h3>
+                    <p class="text-muted">
+                        {% if user.donor and user.donor.is_in_cooldown %}
+                            You are currently in a cooldown period and cannot see new requests.
+                        {% else %}
+                            There are currently no blood requests that match your criteria.
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                        <i class="bi bi-house"></i> Back to Dashboard
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

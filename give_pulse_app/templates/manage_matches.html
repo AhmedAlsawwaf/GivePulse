@@ -127,6 +127,101 @@
                              onclick="return confirm('Decline this match?')">
                             <i class="bi bi-x"></i> Decline
                           </a>
+            <!-- Matches -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-people"></i> Donor Matches ({{ matches|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if matches %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Donor</th>
+                                        <th>Blood Type</th>
+                                        <th>Contact</th>
+                                        <th>Status</th>
+                                        <th>Matched</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for match in matches %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ match.donor.user.first_name }} {{ match.donor.user.last_name }}</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-danger">{{ match.donor.abo }}{{ match.donor.rh }}</span>
+                                            </td>
+                                            <td>
+                                                <small>
+                                                    {{ match.donor.user.email }}<br>
+                                                    {% if match.donor.user.phone %}{{ match.donor.user.phone }}{% endif %}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                {% if match.status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elif match.status == 'accepted' %}
+                                                    <span class="badge bg-success">Accepted</span>
+                                                {% elif match.status == 'declined' %}
+                                                    <span class="badge bg-danger">Declined</span>
+                                                {% elif match.status == 'donated' %}
+                                                    <span class="badge bg-success">Donated</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ match.status|title }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <small>{{ match.created_at|date:"M d, Y H:i" }}</small>
+                                            </td>
+                                            <td>
+                                                {% if match.status == 'pending' %}
+                                                    <div class="btn-group" role="group">
+                                                        <a href="{% url 'accept_match' match.id %}" class="btn btn-sm btn-success" 
+                                                           onclick="return confirm('Accept this match? This will set the donor in cooldown period.')">
+                                                            <i class="bi bi-check"></i> Accept
+                                                        </a>
+                                                        <a href="{% url 'decline_match' match.id %}" class="btn btn-sm btn-danger"
+                                                           onclick="return confirm('Decline this match?')">
+                                                            <i class="bi bi-x"></i> Decline
+                                                        </a>
+                                                    </div>
+                                                {% elif match.status == 'accepted' %}
+                                                    <div class="d-flex flex-column gap-1">
+                                                        <small class="text-success">
+                                                            <i class="bi bi-check-circle"></i> Accepted {{ match.accepted_at|date:"M d, Y" }}
+                                                        </small>
+                                                        {% if match.appointment %}
+                                                            <a href="{% url 'complete_donation' match.appointment.id %}" class="btn btn-sm btn-success">
+                                                                <i class="bi bi-heart-pulse"></i> Complete Donation
+                                                            </a>
+                                                        {% endif %}
+                                                    </div>
+                                                {% elif match.status == 'declined' %}
+                                                    <small class="text-danger">
+                                                        <i class="bi bi-x-circle"></i> Declined {{ match.declined_at|date:"M d, Y" }}
+                                                    </small>
+                                                {% elif match.status == 'donated' %}
+                                                    <small class="text-success">
+                                                        <i class="bi bi-award"></i> Donated {{ match.donated_at|date:"M d, Y" }}
+                                                    </small>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-people display-4 text-muted"></i>
+                            <h5 class="text-muted mt-3">No Matches Yet</h5>
+                            <p class="text-muted">No donors have matched this blood request yet.</p>
                         </div>
                       {% elif match.status == 'accepted' %}
                         <small class="text-success fw-semibold">

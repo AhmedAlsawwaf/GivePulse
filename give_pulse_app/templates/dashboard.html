@@ -5,16 +5,6 @@
 
 {% block content %}
 <section class="dashboard-section py-5">
-  <!-- Messages -->
-  {% if messages %}
-    <div class="mt-4">
-      {% for m in messages %}
-        <div class="alert alert-{{ m.tags }} text-center mb-2 small shadow-sm">
-          {{ m }}
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-lg-8">
@@ -89,6 +79,16 @@
                 <!-- My Matches Button -->
                 <a href="{% url 'donor_matches' %}" class="btn btn-secondary-custom mt-2">
                     My Matches
+                </a>
+                
+                <!-- My Appointments Button -->
+                <a href="{% url 'donor_appointments' %}" class="btn btn-outline-info mt-2">
+                    <i class="bi bi-calendar-check me-2"></i> My Appointments
+                </a>
+                
+                <!-- My Donations Button -->
+                <a href="{% url 'donor_donations' %}" class="btn btn-outline-success mt-2">
+                    <i class="bi bi-award me-2"></i> My Donations
                 </a>
               </div>
             {% endif %}

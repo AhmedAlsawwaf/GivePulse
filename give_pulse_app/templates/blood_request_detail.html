@@ -57,6 +57,108 @@
               </li>
             </ul>
           </div>
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-droplet"></i> {{ blood_request.abo }}{{ blood_request.rh }} Blood Request
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Hospital Information</h6>
+                            <p><strong>Hospital:</strong> {{ blood_request.hospital.name }}</p>
+                            <p><strong>Location:</strong> {{ blood_request.city.name }}</p>
+                            <p><strong>Contact:</strong> {{ blood_request.hospital.phone }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Request Details</h6>
+                            <p><strong>Blood Type:</strong> {{ blood_request.abo }}{{ blood_request.rh }}</p>
+                            <p><strong>Units Needed:</strong> {{ blood_request.units_requested }}</p>
+                            <p><strong>Units Fulfilled:</strong> {{ blood_request.units_fulfilled }}</p>
+                            
+                            <!-- Progress Bar -->
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Progress:</strong></label>
+                                {% widthratio blood_request.units_fulfilled blood_request.units_requested 100 as progress_percent %}
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar {% if blood_request.status == 'fulfilled' %}bg-success{% elif blood_request.status == 'partial' %}bg-warning{% else %}bg-info{% endif %}" 
+                                         role="progressbar" 
+                                         style="width: {{ progress_percent }}%" 
+                                         aria-valuenow="{{ progress_percent }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ blood_request.units_fulfilled }}/{{ blood_request.units_requested }} units
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    {% if blood_request.units_fulfilled < blood_request.units_requested %}
+                                        {{ blood_request.units_requested|add:"-"|add:blood_request.units_fulfilled }} more units needed
+                                    {% else %}
+                                        All units fulfilled! 🎉
+                                    {% endif %}
+                                </small>
+                            </div>
+                            
+                            <p><strong>Deadline:</strong> {{ blood_request.deadline_at|date:"M d, Y H:i" }}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge bg-{% if blood_request.status == 'open' %}success{% elif blood_request.status == 'partial' %}warning{% else %}secondary{% endif %}">
+                                    {{ blood_request.status|title }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {% if blood_request.notes %}
+                        <hr>
+                        <h6 class="text-muted">Additional Notes</h6>
+                        <p class="card-text">{{ blood_request.notes }}</p>
+                    {% endif %}
+                    
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <strong>Created by:</strong> {{ blood_request.created_by.user.first_name }} {{ blood_request.created_by.user.last_name }}<br>
+                                <strong>Posted:</strong> {{ blood_request.created_at|date:"M d, Y H:i" }}
+                            </small>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <small class="text-muted">
+                                <strong>Request ID:</strong> #{{ blood_request.id }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-light">
+                    <div class="d-flex flex-wrap gap-2">
+                        {% if user.donor and not already_matched and blood_request.status == 'open' or user.donor and not already_matched and blood_request.status == 'partial' %}
+                            {% if in_cooldown %}
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-clock"></i> You are in cooldown period until {{ user.donor.cooldown_until|date:"M d, Y H:i" }}
+                                </span>
+                            {% elif is_compatible %}
+                                <a href="{% url 'match_blood_request' blood_request.id %}" class="btn btn-success">
+                                    <i class="bi bi-heart"></i> Match This Request
+                                </a>
+                            {% else %}
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-x-circle"></i> Your blood type ({{ user.donor.abo }}{{ user.donor.rh }}) is not compatible with this request ({{ blood_request.abo }}{{ blood_request.rh }})
+                                </span>
+                            {% endif %}
+                        {% elif user.donor and already_matched %}
+                            <span class="badge bg-info">
+                                <i class="bi bi-check-circle"></i> You have already matched this request
+                            </span>
+                        {% elif user.donor and blood_request.status != 'open' and blood_request.status != 'partial' %}
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-lock"></i> This request is no longer accepting matches
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
 
         {% if blood_request.notes %}

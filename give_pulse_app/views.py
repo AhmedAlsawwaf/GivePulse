@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.db import models
 from functools import wraps
 from .forms import LoginForm, DonorRegistrationForm, StaffRegistrationForm, BloodRequestForm
-from .models import User, Hospital, BloodRequest, Match
+from .models import User, Hospital, BloodRequest, Match, DonationAppointment, Donation
 
 def require_login(view_func):
     """Decorator to handle user authentication"""
@@ -212,8 +212,8 @@ def _check_blood_type_compatibility(donor_abo, donor_rh, request_abo, request_rh
 def blood_requests_list(request, user):
     """List blood requests for donors"""
 
-    # Get open blood requests
-    blood_requests = BloodRequest.objects.filter(status="open").select_related(
+    # Get blood requests that still need donations (open or partial)
+    blood_requests = BloodRequest.objects.filter(status__in=["open", "partial"]).select_related(
         'hospital', 'city', 'created_by__user'
     ).order_by('-created_at')
 
@@ -322,6 +322,11 @@ def match_blood_request(request, request_id):
 
     blood_request = get_object_or_404(BloodRequest, pk=request_id)
     
+    # Check if request is still accepting matches (open or partial)
+    if blood_request.status not in ["open", "partial"]:
+        messages.error(request, f"This blood request is no longer accepting matches (Status: {blood_request.get_status_display()}).")
+        return redirect("blood_request_detail", request_id=request_id)
+    
     # Check if already matched
     if Match.objects.filter(blood_request=blood_request, donor=user.donor).exists():
         messages.info(request, "You have already matched this blood request.")
@@ -390,24 +395,294 @@ def accept_match(request, match_id):
     match.accepted_at = timezone.now()
     match.save()
 
-    # Automatically update blood request status based on fulfillment
-    blood_request = match.blood_request
-    blood_request.units_fulfilled += 1  # Assuming 1 unit per match
-    
-    # Update request status based on fulfillment level
-    if blood_request.units_fulfilled >= blood_request.units_requested:
-        blood_request.status = "fulfilled"
-    elif blood_request.units_fulfilled > 0:
-        blood_request.status = "partial"
-    
-    blood_request.save()
+    # Note: We don't update blood_request status here because the donation hasn't been completed yet
+    # The request should remain "open" until the actual donation is completed
+    # Status will be updated in the complete_donation view
     
     # Set cooldown period for the donor (8 weeks = 56 days)
     donor = match.donor
     donor.set_cooldown(days=56)
 
-    messages.success(request, f"Match #{match.id} has been accepted. Request status updated to {blood_request.status}. Donor is now in cooldown period.")
+    # Create donation appointment with QR code
+    from datetime import timedelta
+    appointment_start = timezone.now() + timedelta(hours=24)  # 24 hours from now
+    appointment_end = appointment_start + timedelta(hours=2)  # 2-hour window
+    
+    appointment = DonationAppointment.objects.create(
+        match=match,
+        window_start=appointment_start,
+        window_end=appointment_end
+    )
+    
+    # Generate QR code data
+    appointment.qr_code_data = appointment.generate_qr_data()
+    appointment.save()
+    
+    # Generate QR code image
+    try:
+        import qrcode
+        from django.conf import settings
+        import os
+        
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(appointment.qr_code_data)
+        qr.make(fit=True)
+        
+        qr_image = qr.make_image(fill_color="black", back_color="white")
+        qr_filename = f"qr_appointment_{appointment.id}.png"
+        qr_path = os.path.join(settings.MEDIA_ROOT, "qr_codes", qr_filename)
+        os.makedirs(os.path.dirname(qr_path), exist_ok=True)
+        qr_image.save(qr_path)
+        
+        appointment.qr_code_image.name = f"qr_codes/{qr_filename}"
+        appointment.save()
+    except ImportError:
+        messages.warning(request, "QR code generation failed - qrcode module not available. Appointment created without QR code image.")
+    except Exception as e:
+        messages.warning(request, f"QR code generation failed: {str(e)}. Appointment created without QR code image.")
+
+    messages.success(request, f"Match #{match.id} has been accepted. Donation appointment created with QR code. Donor is now in cooldown period. Request remains open until donation is completed.")
     return redirect("manage_matches", request_id=match.blood_request.id)
+
+def verify_qr_code(request):
+    """Verify QR code and show appointment details"""
+    if request.method == "POST":
+        qr_data = request.POST.get("qr_data")
+        
+        if qr_data:
+            # Clean and validate the QR data
+            qr_data = qr_data.strip()
+            
+            # Debug: Log the received data
+            print(f"Received QR data: {repr(qr_data[:200])}")
+            
+            # Check if it looks like our appointment QR code
+            if not qr_data.startswith('{'):
+                messages.error(request, f"Invalid QR code format. Expected JSON data starting with '{{', but got: {repr(qr_data[:50])}")
+                return render(request, "verify_qr.html", {"is_valid": False})
+            
+            if 'appointment_id' not in qr_data:
+                messages.error(request, f"Invalid QR code. This doesn't appear to be a GivePulse appointment QR code. Data: {repr(qr_data[:100])}")
+                return render(request, "verify_qr.html", {"is_valid": False})
+            
+            try:
+                import json
+                data = json.loads(qr_data)
+                
+                # Validate required fields
+                required_fields = ['appointment_id', 'match_id', 'donor_id']
+                missing_fields = [field for field in required_fields if field not in data]
+                if missing_fields:
+                    messages.error(request, f"Invalid QR code. Missing required fields: {', '.join(missing_fields)}")
+                    return render(request, "verify_qr.html", {"is_valid": False})
+                
+                appointment_id = data.get("appointment_id")
+                appointment = get_object_or_404(DonationAppointment, pk=appointment_id)
+                
+                context = {
+                    "appointment": appointment,
+                    "qr_data": data,
+                    "is_valid": True
+                }
+                return render(request, "verify_qr.html", context)
+                
+            except json.JSONDecodeError as e:
+                messages.error(request, f"Invalid JSON format in QR code. Error: {str(e)}. Data: {repr(qr_data[:100])}")
+                return render(request, "verify_qr.html", {"is_valid": False})
+            except DonationAppointment.DoesNotExist as e:
+                messages.error(request, f"Appointment not found. Please check the QR code.")
+                return render(request, "verify_qr.html", {"is_valid": False})
+            except Exception as e:
+                messages.error(request, f"Error processing QR code: {str(e)}")
+                return render(request, "verify_qr.html", {"is_valid": False})
+        else:
+            messages.error(request, "No QR code data received.")
+            return render(request, "verify_qr.html", {"is_valid": False})
+    
+    return render(request, "verify_qr.html", {"is_valid": None})
+
+def verify_certificate(request):
+    """Verify certificate authenticity using QR code data"""
+    if request.method == "POST":
+        qr_data = request.POST.get("qr_data")
+        if qr_data:
+            try:
+                import json
+                data = json.loads(qr_data)
+                
+                # Validate required fields
+                required_fields = ['certificate_serial', 'donation_id']
+                missing_fields = [field for field in required_fields if field not in data]
+                if missing_fields:
+                    messages.error(request, f"Invalid certificate QR code. Missing required fields: {', '.join(missing_fields)}")
+                    return render(request, "verify_certificate.html", {"is_valid": False})
+                
+                # Get the donation record
+                donation = get_object_or_404(Donation, pk=data['donation_id'])
+                
+                # Verify the certificate serial matches
+                if donation.certificate_serial != data['certificate_serial']:
+                    messages.error(request, "Certificate serial number mismatch. This certificate may be invalid.")
+                    return render(request, "verify_certificate.html", {"is_valid": False})
+                
+                context = {
+                    "donation": donation,
+                    "qr_data": data,
+                    "is_valid": True
+                }
+                return render(request, "verify_certificate.html", context)
+                
+            except json.JSONDecodeError as e:
+                messages.error(request, f"Invalid JSON format in QR code. Error: {str(e)}")
+                return render(request, "verify_certificate.html", {"is_valid": False})
+            except Donation.DoesNotExist:
+                messages.error(request, "Certificate not found. This certificate may be invalid or expired.")
+                return render(request, "verify_certificate.html", {"is_valid": False})
+            except Exception as e:
+                messages.error(request, f"Error verifying certificate: {str(e)}")
+                return render(request, "verify_certificate.html", {"is_valid": False})
+        else:
+            messages.error(request, "No QR code data received.")
+            return render(request, "verify_certificate.html", {"is_valid": False})
+    
+    return render(request, "verify_certificate.html", {"is_valid": None})
+
+
+@require_login
+@require_staff
+def complete_donation(request, user, staff, appointment_id):
+    """Staff marks donation as completed and generates certificate"""
+    appointment = get_object_or_404(DonationAppointment, pk=appointment_id)
+    
+    # Verify the appointment belongs to staff's hospital
+    if appointment.match.blood_request.hospital != staff.hospital:
+        messages.error(request, "You can only complete donations for your hospital.")
+        return redirect("index")
+    
+    if appointment.match.status != "accepted":
+        messages.error(request, "This appointment is not in accepted status.")
+        return redirect("index")
+    
+    # Check if donation already exists for this match
+    if hasattr(appointment.match, 'donation'):
+        messages.warning(request, "This donation has already been completed.")
+        return redirect("manage_matches", request_id=appointment.match.blood_request.id)
+    
+    if request.method == "POST":
+        # Create donation record
+        donation = Donation.objects.create(
+            match=appointment.match,
+            confirmed_by=staff,
+            units=1  # Default 1 unit, can be made configurable
+        )
+        
+        # Generate certificate
+        try:
+            donation.generate_certificate()
+            messages.success(request, f"Donation completed successfully! Certificate generated with serial: {donation.certificate_serial}")
+        except Exception as e:
+            messages.error(request, f"Donation completed but certificate generation failed: {str(e)}")
+        
+        # Update match status
+        from django.utils import timezone
+        appointment.match.status = "donated"
+        appointment.match.donated_at = timezone.now()
+        appointment.match.save()
+        
+        # Update blood request status based on actual donation completion
+        blood_request = appointment.match.blood_request
+        blood_request.units_fulfilled += donation.units
+        
+        # Update request status based on fulfillment level
+        if blood_request.units_fulfilled >= blood_request.units_requested:
+            blood_request.status = "fulfilled"
+        elif blood_request.units_fulfilled > 0:
+            blood_request.status = "partial"
+        
+        blood_request.save()
+        
+        return redirect("staff_blood_requests")
+    
+    context = {
+        "appointment": appointment,
+        "donor": appointment.match.donor,
+        "blood_request": appointment.match.blood_request
+    }
+    return render(request, "complete_donation.html", context)
+
+@require_login
+@require_donor
+def donor_appointments(request, user):
+    """Donor view of their appointments"""
+    donor = user.donor
+    from django.db import models
+    appointments = DonationAppointment.objects.filter(
+        match__donor=donor,
+        match__status__in=["accepted", "checked_in", "donated"]
+    ).filter(
+        models.Q(qr_code_data__isnull=False) & ~models.Q(qr_code_data='')  # Only show appointments with valid QR data
+    ).order_by("-created_at")
+    
+    context = {
+        "appointments": appointments
+    }
+    return render(request, "donor_appointments.html", context)
+
+@require_login
+@require_donor
+def donor_donations(request, user):
+    """Donor view of their donation history"""
+    donor = user.donor
+    donations = Donation.objects.filter(
+        match__donor=donor
+    ).order_by("-confirmed_at")
+    
+    context = {
+        "donations": donations
+    }
+    return render(request, "donor_donations.html", context)
+
+def download_certificate(request, donation_id):
+    """Download donation certificate"""
+    donation = get_object_or_404(Donation, pk=donation_id)
+    
+    # Check if user is the donor or staff from the same hospital
+    user = None
+    if request.session.get("user_id"):
+        try:
+            user = User.objects.get(pk=request.session["user_id"])
+        except User.DoesNotExist:
+            pass
+    
+    if not user:
+        messages.error(request, "You must be logged in to download certificates.")
+        return redirect("login")
+    
+    # Check permissions
+    can_download = False
+    if hasattr(user, "donor") and donation.match.donor == user.donor:
+        can_download = True
+    elif hasattr(user, "staff") and donation.match.blood_request.hospital == user.staff.hospital:
+        can_download = True
+    
+    if not can_download:
+        messages.error(request, "You don't have permission to download this certificate.")
+        return redirect("index")
+    
+    if not donation.certificate_file:
+        messages.error(request, "Certificate not found.")
+        return redirect("index")
+    
+    from django.http import FileResponse
+    import os
+    from django.conf import settings
+    
+    file_path = os.path.join(settings.MEDIA_ROOT, donation.certificate_file.name)
+    if os.path.exists(file_path):
+        return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=f"donation_certificate_{donation.certificate_serial}.pdf")
+    else:
+        messages.error(request, "Certificate file not found.")
+        return redirect("index")
 
 @require_login
 @require_staff

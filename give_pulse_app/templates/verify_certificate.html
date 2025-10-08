@@ -1,0 +1,391 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Verify Certificate - GivePulse{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-shield-check"></i> Certificate Verification
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <h6><i class="bi bi-info-circle"></i> Certificate Verification</h6>
+                        <p class="mb-0">Scan or enter a <strong>certificate QR code</strong> to verify its authenticity.</p>
+                        <hr class="my-2">
+                        <small class="text-muted">
+                            <strong>Note:</strong> Only QR codes from official GivePulse certificates will be verified.
+                        </small>
+                    </div>
+                    
+                    {% if is_valid is None %}
+                        <!-- QR Code Scanner -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-camera"></i> QR Code Scanner
+                                </h6>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="toggleCamera">
+                                    <i class="bi bi-camera-video"></i> <span id="cameraToggleText">Start Camera</span>
+                                </button>
+                            </div>
+                            
+                            <!-- Camera Video Element -->
+                            <div id="cameraContainer" class="text-center mb-3" style="display: none;">
+                                <div class="position-relative d-inline-block">
+                                    <video id="video" width="100%" height="300" style="border-radius: 8px; background: #f8f9fa;"></video>
+                                    <!-- Scanning overlay -->
+                                    <div id="scanOverlay" class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="pointer-events: none;">
+                                        <div class="scan-frame" style="
+                                            width: 200px; 
+                                            height: 200px; 
+                                            border: 2px solid #28a745; 
+                                            border-radius: 8px;
+                                            position: relative;
+                                            animation: scanPulse 2s infinite;
+                                        ">
+                                            <div class="scan-corner" style="
+                                                position: absolute;
+                                                top: -2px;
+                                                left: -2px;
+                                                width: 20px;
+                                                height: 20px;
+                                                border-top: 4px solid #28a745;
+                                                border-left: 4px solid #28a745;
+                                            "></div>
+                                            <div class="scan-corner" style="
+                                                position: absolute;
+                                                top: -2px;
+                                                right: -2px;
+                                                width: 20px;
+                                                height: 20px;
+                                                border-top: 4px solid #28a745;
+                                                border-right: 4px solid #28a745;
+                                            "></div>
+                                            <div class="scan-corner" style="
+                                                position: absolute;
+                                                bottom: -2px;
+                                                left: -2px;
+                                                width: 20px;
+                                                height: 20px;
+                                                border-bottom: 4px solid #28a745;
+                                                border-left: 4px solid #28a745;
+                                            "></div>
+                                            <div class="scan-corner" style="
+                                                position: absolute;
+                                                bottom: -2px;
+                                                right: -2px;
+                                                width: 20px;
+                                                height: 20px;
+                                                border-bottom: 4px solid #28a745;
+                                                border-right: 4px solid #28a745;
+                                            "></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">Position the <strong>certificate QR code</strong> within the scanning frame</small>
+                                    <br>
+                                    <small class="text-info">
+                                        <i class="bi bi-info-circle"></i> Only scans certificate QR codes
+                                    </small>
+                                </div>
+                                <div id="scanStatus" class="mt-1">
+                                    <small class="text-info">
+                                        <i class="bi bi-search"></i> Scanning for QR codes...
+                                    </small>
+                                </div>
+                            </div>
+                            
+                            <!-- Manual Input Option -->
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#manualInput">
+                                    <i class="bi bi-keyboard"></i> Manual Input
+                                </button>
+                                <button type="button" class="btn btn-outline-primary btn-sm ms-2" id="restartCamera" style="display: none;">
+                                    <i class="bi bi-camera-video"></i> Scan Again
+                                </button>
+                            </div>
+                            
+                            <div class="collapse" id="manualInput">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="qr_data" class="form-label fw-semibold">
+                                            <i class="bi bi-qr-code"></i> Certificate QR Code Data
+                                        </label>
+                                        <textarea 
+                                            class="form-control" 
+                                            id="qr_data" 
+                                            name="qr_data" 
+                                            rows="4" 
+                                            placeholder="Paste certificate QR code data here..."
+                                        ></textarea>
+                                        <div class="form-text">
+                                            Manually enter the certificate QR code data if camera scanning is not available.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="bi bi-shield-check"></i> Verify Certificate
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    {% elif is_valid %}
+                        <!-- Valid Certificate Display -->
+                        <div class="alert alert-success">
+                            <h5><i class="bi bi-shield-check"></i> Certificate Verified</h5>
+                            <p class="mb-0">This certificate is authentic and has been verified by our system.</p>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0"><i class="bi bi-person"></i> Donor Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Name:</strong> {{ donation.match.donor.user.first_name }} {{ donation.match.donor.user.last_name }}</p>
+                                        <p><strong>Blood Type:</strong> {{ donation.match.donor.abo }}{{ donation.match.donor.rh }}</p>
+                                        <p><strong>Donor ID:</strong> {{ donation.match.donor.id }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-info text-white">
+                                        <h6 class="mb-0"><i class="bi bi-hospital"></i> Donation Details</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Hospital:</strong> {{ donation.match.blood_request.hospital.name }}</p>
+                                        <p><strong>Units Donated:</strong> {{ donation.units }}</p>
+                                        <p><strong>Date:</strong> {{ donation.confirmed_at|date:"F d, Y" }}</p>
+                                        <p><strong>Certificate Serial:</strong> {{ donation.certificate_serial }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-center">
+                            <a href="{% url 'verify_certificate' %}" class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-left"></i> Verify Another Certificate
+                            </a>
+                        </div>
+                    {% else %}
+                        <!-- Invalid Certificate Display -->
+                        <div class="alert alert-danger">
+                            <h5><i class="bi bi-exclamation-triangle"></i> Certificate Verification Failed</h5>
+                            <p class="mb-0">This certificate could not be verified. It may be invalid, expired, or corrupted.</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="{% url 'verify_certificate' %}" class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-left"></i> Try Again
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes scanPulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let video, stream, scanning = false, scanInterval;
+    const cameraContainer = document.getElementById('cameraContainer');
+    const toggleButton = document.getElementById('toggleCamera');
+    const toggleText = document.getElementById('cameraToggleText');
+    const scanStatus = document.getElementById('scanStatus');
+
+    // Camera toggle functionality
+    toggleButton.addEventListener('click', function() {
+        if (scanning) {
+            stopCamera();
+        } else {
+            startCamera();
+        }
+    });
+
+    function startCamera() {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(function(mediaStream) {
+                stream = mediaStream;
+                video = document.getElementById('video');
+                video.srcObject = stream;
+                video.play();
+                
+                cameraContainer.style.display = 'block';
+                scanning = true;
+                
+                toggleText.textContent = 'Stop Camera';
+                toggleButton.innerHTML = '<i class="bi bi-camera-video-off"></i> Stop Camera';
+                toggleButton.classList.remove('btn-outline-primary');
+                toggleButton.classList.add('btn-outline-danger');
+                
+                startScanning();
+            })
+            .catch(function(err) {
+                console.error('Error accessing camera:', err);
+                scanStatus.innerHTML = '<small class="text-danger"><i class="bi bi-exclamation-triangle"></i> Camera access denied or not available</small>';
+            });
+    }
+
+    function startScanning() {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        
+        scanInterval = setInterval(() => {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                
+                if (code) {
+                    console.log('QR Code detected:', code.data);
+                    
+                    // Validate QR code format before processing
+                    const qrData = code.data.trim();
+                    
+                    // Check if it looks like our certificate QR code
+                    if (qrData.startsWith('{') && qrData.includes('certificate_serial')) {
+                        try {
+                            // Try to parse JSON to validate format
+                            const parsed = JSON.parse(qrData);
+                            if (parsed.certificate_serial && parsed.donation_id) {
+                                // Valid certificate QR code - paste into manual input field
+                                scanStatus.innerHTML = '<small class="text-success"><i class="bi bi-check-circle"></i> Valid certificate QR detected! Data copied to manual input.</small>';
+                                scanStatus.className = 'mt-1 success';
+                                
+                                // Stop scanning
+                                stopCamera();
+                                
+                                // Paste QR data into manual input field
+                                const manualInput = document.getElementById('qr_data');
+                                if (manualInput) {
+                                    manualInput.value = qrData;
+                                    
+                                    // Show the manual input section
+                                    const manualInputCollapse = document.getElementById('manualInput');
+                                    if (manualInputCollapse) {
+                                        manualInputCollapse.classList.add('show');
+                                    }
+                                    
+                                    // Scroll to the manual input section
+                                    manualInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    
+                                    // Focus on the input field
+                                    manualInput.focus();
+                                    
+                                    // Show success message
+                                    scanStatus.innerHTML = '<small class="text-success"><i class="bi bi-check-circle"></i> QR data copied to manual input field below. Review and click "Verify Certificate" to proceed.</small>';
+                                }
+                            } else {
+                                // Invalid certificate QR format
+                                scanStatus.innerHTML = '<small class="text-warning"><i class="bi bi-exclamation-triangle"></i> Invalid certificate QR format</small>';
+                                scanStatus.className = 'mt-1 error';
+                                setTimeout(() => {
+                                    scanStatus.innerHTML = '<small class="text-info"><i class="bi bi-search"></i> Scanning for QR codes...</small>';
+                                    scanStatus.className = 'mt-1';
+                                }, 2000);
+                            }
+                        } catch (e) {
+                            // Invalid JSON
+                            scanStatus.innerHTML = '<small class="text-warning"><i class="bi bi-exclamation-triangle"></i> Invalid QR code format</small>';
+                            scanStatus.className = 'mt-1 error';
+                            setTimeout(() => {
+                                scanStatus.innerHTML = '<small class="text-info"><i class="bi bi-search"></i> Scanning for QR codes...</small>';
+                                scanStatus.className = 'mt-1';
+                            }, 2000);
+                        }
+                    } else {
+                        // Not a certificate QR code
+                        scanStatus.innerHTML = '<small class="text-warning"><i class="bi bi-exclamation-triangle"></i> Not a certificate QR code</small>';
+                        scanStatus.className = 'mt-1 error';
+                        setTimeout(() => {
+                            scanStatus.innerHTML = '<small class="text-info"><i class="bi bi-search"></i> Scanning for QR codes...</small>';
+                            scanStatus.className = 'mt-1';
+                        }, 2000);
+                    }
+                }
+            }
+        }, 100); // Check every 100ms
+    }
+
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        
+        if (scanInterval) {
+            clearInterval(scanInterval);
+            scanInterval = null;
+        }
+        
+        cameraContainer.style.display = 'none';
+        scanning = false;
+        
+        // Show restart button
+        const restartBtn = document.getElementById('restartCamera');
+        if (restartBtn) {
+            restartBtn.style.display = 'inline-block';
+        }
+        
+        toggleText.textContent = 'Start Camera';
+        toggleButton.innerHTML = '<i class="bi bi-camera-video"></i> Start Camera';
+        toggleButton.classList.remove('btn-outline-danger');
+        toggleButton.classList.add('btn-outline-primary');
+    }
+
+    // Restart camera functionality
+    const restartCameraBtn = document.getElementById('restartCamera');
+    if (restartCameraBtn) {
+        restartCameraBtn.addEventListener('click', function() {
+            // Clear the manual input field
+            const manualInput = document.getElementById('qr_data');
+            if (manualInput) {
+                manualInput.value = '';
+            }
+            
+            // Hide the manual input section
+            const manualInputCollapse = document.getElementById('manualInput');
+            if (manualInputCollapse) {
+                manualInputCollapse.classList.remove('show');
+            }
+            
+            // Hide the restart button
+            restartCameraBtn.style.display = 'none';
+            
+            // Start camera again
+            startCamera();
+        });
+    }
+
+    // Clean up when page is unloaded
+    window.addEventListener('beforeunload', function() {
+        stopCamera();
+    });
+});
+</script>
+{% endblock %}

@@ -30,15 +30,18 @@
       </button>
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
         <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'index' %}">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'about' %}">About</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'contact' %}">Contact</a>
-          </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'index' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'about' %}">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'contact' %}">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'verify_certificate' %}">Verify Certificate</a>
+                    </li>
           {% if user %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
@@ -98,6 +101,45 @@
               </li>
             </ul>
           </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                <i class="bi bi-person-circle"></i> {{ user.first_name }}
+                {% if user.role == 'donor' %}
+                  <span class="badge bg-success ms-1">Donor</span>
+                {% elif user.role == 'staff' %}
+                  <span class="badge bg-primary ms-1">Staff</span>
+                {% endif %}
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'dashboard' %}">
+                  <i class="bi bi-house"></i> Dashboard
+                </a></li>
+                {% if user.role == 'donor' %}
+                  <li><a class="dropdown-item" href="{% url 'blood_requests_list' %}">
+                    <i class="bi bi-droplet"></i> Browse Requests
+                  </a></li>
+                  <li><a class="dropdown-item" href="{% url 'donor_matches' %}">
+                    <i class="bi bi-heart"></i> My Matches
+                  </a></li>
+                {% elif user.role == 'staff' %}
+                  <li><a class="dropdown-item" href="{% url 'blood_request_new' %}">
+                    <i class="bi bi-plus-circle"></i> Create Request
+                  </a></li>
+                  <li><a class="dropdown-item" href="{% url 'staff_blood_requests' %}">
+                    <i class="bi bi-list-ul"></i> Manage Requests
+                  </a></li>
+                  <li><a class="dropdown-item" href="{% url 'verify_qr' %}">
+                    <i class="bi bi-qr-code-scan"></i> Verify QR Code
+                  </a></li>
+                {% endif %}
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'logout' %}">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                  </a>
+                </li>
+              </ul>
+            </li>
           {% else %}
           <li class="nav-item">
             <a class="nav-link" href="{% url 'login' %}">Login</a>
