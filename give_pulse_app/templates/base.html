@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,14 +9,12 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
   <link href="{% static 'css/base.css' %}" rel="stylesheet">
-  <link href="{% static 'css/components.css' %}" rel="stylesheet">   
+  <link href="{% static 'css/components.css' %}" rel="stylesheet">
   <!-- ✅ Bootstrap Icons -->
-<link
-  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-  rel="stylesheet"
-/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
 
 </head>
+
 <body>
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg shadow-sm">
@@ -41,59 +40,81 @@
             <a class="nav-link" href="{% url 'contact' %}">Contact</a>
           </li>
           {% if user %}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                <i class="bi bi-person-circle"></i> {{ user.first_name }}
-                {% if user.role == 'donor' %}
-                  <span class="badge bg-success ms-1">Donor</span>
-                {% elif user.role == 'staff' %}
-                  <span class="badge bg-primary ms-1">Staff</span>
-                {% endif %}
-              </a>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{% url 'dashboard' %}">
-                  <i class="bi bi-house"></i> Dashboard
-                </a></li>
-                {% if user.role == 'donor' %}
-                  <li><a class="dropdown-item" href="{% url 'blood_requests_list' %}">
-                    <i class="bi bi-droplet"></i> Browse Requests
-                  </a></li>
-                  <li><a class="dropdown-item" href="{% url 'donor_matches' %}">
-                    <i class="bi bi-heart"></i> My Matches
-                  </a></li>
-                {% elif user.role == 'staff' %}
-                  <li><a class="dropdown-item" href="{% url 'blood_request_new' %}">
-                    <i class="bi bi-plus-circle"></i> Create Request
-                  </a></li>
-                  <li><a class="dropdown-item" href="{% url 'staff_blood_requests' %}">
-                    <i class="bi bi-list-ul"></i> Manage Requests
-                  </a></li>
-                {% endif %}
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <a class="dropdown-item" href="{% url 'logout' %}">
-                    <i class="bi bi-box-arrow-right"></i> Logout
-                  </a>
-                </li>
-              </ul>
-            </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle"></i> {{ user.first_name }}
+              {% if user.role == 'donor' %}
+              <span class="badge bg-success ms-1">Donor</span>
+              {% elif user.role == 'staff' %}
+              <span class="badge bg-success ms-1">Staff</span>
+              {% endif %}
+            </a>
+            <ul class="dropdown-menu custom-dropdown shadow border-0 rounded-4 p-2 animate__animated animate__fadeIn">
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'dashboard' %}">
+                  <i class="bi bi-house text-secondary-green fs-5"></i>
+                  <span>Dashboard</span>
+                </a>
+              </li>
+
+              {% if user.role == 'donor' %}
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'blood_requests_list' %}">
+                  <i class="bi bi-droplet text-primary-red fs-5"></i>
+                  <span>Browse Requests</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'donor_matches' %}">
+                  <i class="bi bi-heart text-primary-red fs-5"></i>
+                  <span>My Matches</span>
+                </a>
+              </li>
+              {% elif user.role == 'staff' %}
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'blood_request_new' %}">
+                  <i class="bi bi-plus-circle text-primary-red fs-5"></i>
+                  <span>Create Request</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'staff_blood_requests' %}">
+                  <i class="bi bi-list-ul text-secondary-green fs-5"></i>
+                  <span>Manage Requests</span>
+                </a>
+              </li>
+              {% endif %}
+
+              <li>
+                <hr class="dropdown-divider my-2">
+              </li>
+
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2 text-danger fw-semibold logout-item"
+                  href="{% url 'logout' %}">
+                  <i class="bi bi-box-arrow-right fs-5"></i>
+                  <span>Logout</span>
+                </a>
+              </li>
+            </ul>
+          </li>
           {% else %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Login</a>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="registerDropdown" role="button" data-bs-toggle="dropdown">
-                Register
-              </a>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{% url 'register_donor' %}">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Login</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="registerDropdown" role="button" data-bs-toggle="dropdown">
+              Register
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url 'register_donor' %}">
                   <i class="bi bi-person-heart"></i> Register as Donor
                 </a></li>
-                <li><a class="dropdown-item" href="{% url 'register_staff' %}">
+              <li><a class="dropdown-item" href="{% url 'register_staff' %}">
                   <i class="bi bi-hospital"></i> Register as Staff
                 </a></li>
-              </ul>
-            </li>
+            </ul>
+          </li>
           {% endif %}
         </ul>
       </div>
@@ -102,14 +123,14 @@
 
   <!-- Messages -->
   {% if messages %}
-    <div class="container mt-3">
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-      {% endfor %}
+  <div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
+    {% endfor %}
+  </div>
   {% endif %}
 
   <!-- main content -->
@@ -127,10 +148,11 @@
 
   <!-- Bootstrap JavaScript -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  
+
   <!-- Custom JavaScript -->
   <script src="{% static 'js/auto_messages.js' %}"></script>
-  
+
   {% block extra_js %}{% endblock %}
 </body>
+
 </html>
