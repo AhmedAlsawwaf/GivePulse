@@ -1,14 +1,52 @@
-  document.addEventListener("DOMContentLoaded", function () {
-    const togglePassword = document.getElementById("togglePassword");
-    const passwordInput = document.getElementById("id_password");
-    const icon = togglePassword.querySelector("i");
+// Prevent multiple initializations
+let passwordTogglesInitialized = false;
 
-    togglePassword.addEventListener("click", function () {
-      const type = passwordInput.type === "password" ? "text" : "password";
-      passwordInput.type = type;
-      icon.classList.toggle("bi-eye");
-      icon.classList.toggle("bi-eye-slash");
+function initPasswordToggles() {
+  if (passwordTogglesInitialized) {
+    return;
+  }
+  
+  const toggles = document.querySelectorAll(".toggle-password");
+  
+  if (toggles.length === 0) {
+    return;
+  }
+  
+  toggles.forEach((toggle) => {
+    const targetId = toggle.getAttribute("data-target");
+    const input = document.getElementById(targetId);
 
-      icon.style.color = passwordInput.type === "text" ? "var(--primary-red)" : "#aaa";
+    if (!input) {
+      return;
+    }
+
+    // Check if already has click listener
+    if (toggle.hasAttribute('data-toggle-initialized')) {
+      return;
+    }
+
+    // Mark as initialized
+    toggle.setAttribute('data-toggle-initialized', 'true');
+    
+    // Add click listener
+    toggle.addEventListener("click", function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      if (input.type === "password") {
+        input.type = "text";
+        toggle.classList.remove("bi-eye");
+        toggle.classList.add("bi-eye-slash", "active");
+      } else {
+        input.type = "password";
+        toggle.classList.remove("bi-eye-slash", "active");
+        toggle.classList.add("bi-eye");
+      }
     });
   });
+  
+  passwordTogglesInitialized = true;
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', initPasswordToggles);

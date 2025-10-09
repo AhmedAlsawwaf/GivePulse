@@ -64,14 +64,6 @@ def terms(request):
 def about(request):
     return render(request, "about.html")
 
-def logout_view(request):
-    if request.method == "POST":
-        _logout(request)
-        messages.success(request, "You have been successfully logged out.")
-        return redirect("index")
-    else:
-        # Show logout confirmation page
-        return render(request, "logout_confirm.html")
 def _login(request, user: User):
     request.session["user_id"] = user.id
     request.session["user_role"] = user.role
@@ -424,6 +416,10 @@ def accept_match(request, match_id):
         from django.conf import settings
         import os
         
+        # Ensure we have QR data
+        if not appointment.qr_code_data:
+            raise Exception("No QR code data available")
+        
         qr = qrcode.QRCode(version=1, box_size=10, border=5)
         qr.add_data(appointment.qr_code_data)
         qr.make(fit=True)
@@ -431,15 +427,29 @@ def accept_match(request, match_id):
         qr_image = qr.make_image(fill_color="black", back_color="white")
         qr_filename = f"qr_appointment_{appointment.id}.png"
         qr_path = os.path.join(settings.MEDIA_ROOT, "qr_codes", qr_filename)
+        
+        # Ensure directory exists
         os.makedirs(os.path.dirname(qr_path), exist_ok=True)
+        
+        # Save QR code image
         qr_image.save(qr_path)
         
+        # Update appointment with QR code image path
         appointment.qr_code_image.name = f"qr_codes/{qr_filename}"
         appointment.save()
+        
+        # Verify the file was created
+        if not os.path.exists(qr_path):
+            raise Exception(f"QR code file was not created at {qr_path}")
+            
     except ImportError:
         messages.warning(request, "QR code generation failed - qrcode module not available. Appointment created without QR code image.")
     except Exception as e:
         messages.warning(request, f"QR code generation failed: {str(e)}. Appointment created without QR code image.")
+        # Log the error for debugging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"QR code generation failed for appointment {appointment.id}: {str(e)}")
 
     messages.success(request, f"Match #{match.id} has been accepted. Donation appointment created with QR code. Donor is now in cooldown period. Request remains open until donation is completed.")
     return redirect("manage_matches", request_id=match.blood_request.id)
