@@ -37,60 +37,20 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>1</td>
-              <td>Ahmad</td>
-              <td>5</td>
-              <td>Gaza</td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>Yahia</td>
-              <td>3</td>
-              <td>Rafah</td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td>Hala</td>
-              <td>2</td>
-              <td>Khan Younis</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Issa</td>
-              <td>5</td>
-              <td>Gaza</td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>Islam</td>
-              <td>3</td>
-              <td>Rafah</td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td>Fatima</td>
-              <td>2</td>
-              <td>Ramallah</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Mohammad</td>
-              <td>5</td>
-              <td>Nablus</td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>Razan</td>
-              <td>3</td>
-              <td>Ramallah</td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td>Sara</td>
-              <td>2</td>
-              <td>Hebron</td>
-            </tr>
+            {% if leaderboard %}
+              {% for donor in leaderboard %}
+                <tr>
+                  <td>{{ donor.rank }}</td>
+                  <td>{{ donor.name }}</td>
+                  <td>{{ donor.donation_count }}</td>
+                  <td>{{ donor.city }}</td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="4" class="text-center text-muted">No donation data available yet</td>
+              </tr>
+            {% endif %}
           </tbody>
         </table>
       </div>
@@ -121,76 +81,60 @@
 <!-- Success Stories Section -->
 <section class="success-stories py-5 bg-light" id="success">
   <div class="container">
-    <h2 class="text-primary-red text-center mb-5 animate__animated animate__fadeInDown"> Success Stories</h2>
-    <div class="row g-4">
-
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm border-0 animate__animated animate__fadeInUp">
-          <div class="card-body text-center">
-            <img src="https://i.pravatar.cc/80?img=12" alt="Ahmed" class="rounded-circle mb-3">
-            <h5 class="text-secondary-green mb-3">Ahmed’s Story</h5>
-            <p>
-              Ahmed’s father needed an urgent blood transfusion.
-              Thanks to <strong>GivePulse</strong>, donors in Gaza responded within minutes,
-              and his life was saved just in time.
-            </p>
+    <h2 class="text-primary-red text-center mb-5 animate__animated animate__fadeInDown">Success Stories</h2>
+    
+    {% if success_stories %}
+      <div class="stories-carousel-container">
+        <!-- Navigation Buttons -->
+        <button class="carousel-nav-btn prev-btn" id="prevBtn" onclick="moveCarousel(-1)">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        
+        <button class="carousel-nav-btn next-btn" id="nextBtn" onclick="moveCarousel(1)">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+        
+        <!-- Stories Carousel -->
+        <div class="stories-carousel" id="storiesCarousel">
+          <div class="stories-track" id="storiesTrack">
+            {% for story in success_stories %}
+              <div class="story-item">
+                <div class="card h-100 shadow-sm border-0">
+                  <div class="card-body text-center">
+                    {% if story.image_url %}
+                      <img src="{{ story.image_url }}" alt="{{ story.donor_name }}" class="story-image rounded-circle mb-3">
+                    {% else %}
+                      <img src="https://i.pravatar.cc/80?img={{ forloop.counter }}" alt="{{ story.donor_name }}" class="story-image rounded-circle mb-3">
+                    {% endif %}
+                    <h5 class="text-secondary-green mb-3">{{ story.title }}</h5>
+                    <p class="story-text mb-0">{{ story.story_text }}</p>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
           </div>
         </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm border-0 animate__animated animate__fadeInUp animate__delay-1s">
-          <div class="card-body text-center">
-            <img src="https://i.pravatar.cc/80?img=25" alt="Lina" class="rounded-circle mb-3">
-            <h5 class="text-secondary-green mb-3">Lina’s Story</h5>
-            <p>
-              Lina shared how her brother’s rare blood type was matched instantly.
-              The platform connected them with verified donors, avoiding delays in treatment.
-            </p>
-          </div>
+        
+        <!-- Dots Indicator -->
+        <div class="carousel-dots" id="carouselDots">
+          {% for story in success_stories %}
+            <span class="dot {% if forloop.first %}active{% endif %}" onclick="goToSlide({{ forloop.counter0 }})"></span>
+          {% endfor %}
         </div>
       </div>
-
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm border-0 animate__animated animate__fadeInUp animate__delay-2s">
-          <div class="card-body text-center">
-            <img src="https://i.pravatar.cc/80?img=36" alt="Yousef" class="rounded-circle mb-3">
-            <h5 class="text-secondary-green mb-3">Yousef’s Story</h5>
-            <p>
-              After a car accident, Yousef urgently needed blood.
-              With <strong>GivePulse</strong>, he was connected to nearby donors immediately,
-              giving him a second chance at life.
-            </p>
-          </div>
-        </div>
+    {% else %}
+      <div class="text-center">
+        <p class="text-muted">No success stories available yet.</p>
       </div>
-
-    </div>
-
-    <!-- Share Your Story Button -->
-    <div class="text-center mt-5 animate__animated animate__fadeInUp animate__delay-3s">
-      <a href="{% url 'contact' %}"
-        class="btn btn-secondary-custom btn-lg animate__animated animate__pulse animate__infinite">
-        Share Your Story
-      </a>
-      <p class="mt-2 text-muted">We’d love to hear how GivePulse helped you or your loved ones.</p>
-    </div>
+    {% endif %}
   </div>
 </section>
-
-
-
-
-
-
-
-
-
-
 <!-- charts library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <!-- linking charts javascript -->
 <script src="{% static 'js/charts.js' %}"></script>
+<!-- Success Stories Slider JavaScript -->
+<script src="{% static 'js/success-stories-slider.js' %}"></script>
 
 {% endblock %}

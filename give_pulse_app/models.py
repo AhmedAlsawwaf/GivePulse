@@ -518,3 +518,23 @@ class Donation(models.Model):
 
     def __str__(self):
         return f"Donation for match {self.match_id}"
+
+
+class SuccessStory(models.Model):
+    """Model to store success stories for the home page"""
+    title = models.CharField(max_length=200, help_text="Story title (e.g., 'Ahmed's Story')")
+    donor_name = models.CharField(max_length=100, help_text="Name of the person in the story")
+    story_text = models.TextField(help_text="The success story content")
+    image_url = models.URLField(blank=True, help_text="URL for the story image (optional)")
+    is_published = models.BooleanField(default=True, help_text="Whether this story should be displayed")
+    display_order = models.PositiveIntegerField(default=0, help_text="Order for displaying stories (lower numbers first)")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['display_order', '-created_at']
+        verbose_name = "Success Story"
+        verbose_name_plural = "Success Stories"
+
+    def __str__(self):
+        return f"{self.title} - {self.donor_name}"

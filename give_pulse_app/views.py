@@ -6,7 +6,8 @@ from django.contrib import messages
 from django.db import models
 from functools import wraps
 from .forms import LoginForm, DonorRegistrationForm, StaffRegistrationForm, BloodRequestForm
-from .models import User, Hospital, BloodRequest, Match, DonationAppointment, Donation
+from .models import User, Hospital, BloodRequest, Match, DonationAppointment, Donation, SuccessStory
+from django.db.models import Count
 
 def require_login(view_func):
     """Decorator to handle user authentication"""
@@ -79,7 +80,36 @@ def index(request):
             user = User.objects.get(pk=request.session["user_id"])
         except User.DoesNotExist:
             _logout(request)
-    return render(request,"index.html",{"user": user})
+    
+    # Get leaderboard data (top 10 donors by donation count)
+    # Include both 'completed' and 'donated' statuses for existing data compatibility
+    leaderboard_users = User.objects.filter(
+        donor__matches__status__in=['completed', 'donated']
+    ).annotate(
+        donation_count=Count('donor__matches', filter=models.Q(donor__matches__status__in=['completed', 'donated']))
+    ).filter(
+        donation_count__gt=0
+    ).order_by('-donation_count')[:10]
+    
+    # Format leaderboard data for template
+    leaderboard = []
+    for rank, user in enumerate(leaderboard_users, 1):
+        leaderboard.append({
+            'rank': rank,
+            'name': f"{user.first_name} {user.last_name}",
+            'donation_count': user.donation_count,
+            'city': user.donor.city.name if hasattr(user, 'donor') and user.donor.city else 'N/A'
+        })
+    
+    # Get success stories from database (limit to first 4)
+    success_stories = SuccessStory.objects.filter(is_published=True).order_by('display_order', '-created_at')[:4]
+    
+    context = {
+        "user": user,
+        "leaderboard": leaderboard,
+        "success_stories": success_stories
+    }
+    return render(request, "index.html", context)
 
 def login_view(request):
     if request.method == "POST":
@@ -579,11 +609,19 @@ def complete_donation(request, user, staff, appointment_id):
         return redirect("manage_matches", request_id=appointment.match.blood_request.id)
     
     if request.method == "POST":
-        # Create donation record
+        # Generate certificate serial first
+        import uuid
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d")
+        unique_id = str(uuid.uuid4())[:8].upper()
+        certificate_serial = f"GP-{timestamp}-{unique_id}"
+        
+        # Create donation record with certificate serial
         donation = Donation.objects.create(
             match=appointment.match,
             confirmed_by=staff,
-            units=1  # Default 1 unit, can be made configurable
+            units=1,  # Default 1 unit, can be made configurable
+            certificate_serial=certificate_serial
         )
         
         # Generate certificate
