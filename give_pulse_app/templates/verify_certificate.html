@@ -262,7 +262,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const code = jsQR(imageData.data, imageData.width, imageData.height);
                 
                 if (code) {
-                    console.log('QR Code detected:', code.data);
                     
                     // Validate QR code format before processing
                     const qrData = code.data.trim();

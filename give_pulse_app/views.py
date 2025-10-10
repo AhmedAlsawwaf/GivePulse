@@ -70,8 +70,13 @@ def _login(request, user: User):
     request.session["user_role"] = user.role
 
 def _logout(request):
+    """Logout user and clear session data"""
     for k in ("user_id", "user_role"):
         request.session.pop(k, None)
+    
+    # Clear the entire session to ensure complete logout
+    request.session.flush()
+
 
 def index(request):
     user = None
@@ -93,12 +98,12 @@ def index(request):
     
     # Format leaderboard data for template
     leaderboard = []
-    for rank, user in enumerate(leaderboard_users, 1):
+    for rank, leaderboard_user in enumerate(leaderboard_users, 1):
         leaderboard.append({
             'rank': rank,
-            'name': f"{user.first_name} {user.last_name}",
-            'donation_count': user.donation_count,
-            'city': user.donor.city.name if hasattr(user, 'donor') and user.donor.city else 'N/A'
+            'name': f"{leaderboard_user.first_name} {leaderboard_user.last_name}",
+            'donation_count': leaderboard_user.donation_count,
+            'city': leaderboard_user.donor.city.name if hasattr(leaderboard_user, 'donor') and leaderboard_user.donor.city else 'N/A'
         })
     
     # Get success stories from database (limit to first 4)
@@ -109,7 +114,12 @@ def index(request):
         "leaderboard": leaderboard,
         "success_stories": success_stories
     }
-    return render(request, "index.html", context)
+    response = render(request, "index.html", context)
+    # Add cache-busting headers to prevent caching
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
 
 def login_view(request):
     if request.method == "POST":
@@ -476,7 +486,6 @@ def accept_match(request, match_id):
         messages.warning(request, "QR code generation failed - qrcode module not available. Appointment created without QR code image.")
     except Exception as e:
         messages.warning(request, f"QR code generation failed: {str(e)}. Appointment created without QR code image.")
-        # Log the error for debugging
         import logging
         logger = logging.getLogger(__name__)
         logger.error(f"QR code generation failed for appointment {appointment.id}: {str(e)}")
@@ -492,9 +501,6 @@ def verify_qr_code(request):
         if qr_data:
             # Clean and validate the QR data
             qr_data = qr_data.strip()
-            
-            # Debug: Log the received data
-            print(f"Received QR data: {repr(qr_data[:200])}")
             
             # Check if it looks like our appointment QR code
             if not qr_data.startswith('{'):
