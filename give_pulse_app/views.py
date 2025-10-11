@@ -6,8 +6,11 @@ from django.contrib import messages
 from django.db import models
 from functools import wraps
 from .forms import LoginForm, DonorRegistrationForm, StaffRegistrationForm, BloodRequestForm
-from .models import User, Hospital, BloodRequest, Match, DonationAppointment, Donation, SuccessStory
+from .models import ContactMessage, User, Hospital, BloodRequest, Match, DonationAppointment, Donation, SuccessStory
 from django.db.models import Count
+from .forms import ContactForm
+from django.core.mail import send_mail, BadHeaderError
+
 
 def require_login(view_func):
     """Decorator to handle user authentication"""
@@ -839,3 +842,31 @@ def decline_match(request, match_id):
 
     messages.success(request, f"Match #{match.id} has been declined.")
     return redirect("manage_matches", request_id=match.blood_request.id)
+
+
+def contact_view(request):
+    if request.method == "POST":
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data["name"]
+            email = form.cleaned_data["email"]
+            message = form.cleaned_data["message"]
+
+            ContactMessage.objects.create(name=name, email=email, message=message)
+
+            subject = f"📩 New Message from {name}"
+            body = f"From: {name} <{email}>\n\nMessage:\n{message}"
+
+            try:
+                send_mail(subject, body, email, ["givepulse25@gmail.com"])
+                messages.success(request, "✅ Your message has been sent successfully!")
+            except BadHeaderError:
+                messages.error(request, "Invalid header found.")
+            except Exception as e:
+                messages.error(request, f"⚠️ Error sending email: {e}")
+
+            return redirect("contact")
+    else:
+        form = ContactForm()
+
+    return render(request, "contact.html", {"form": form})
