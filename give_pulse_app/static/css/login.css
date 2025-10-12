@@ -34,9 +34,6 @@
     background-color: #fff !important;
   }
 
-  input#id_password.form-control {
-    padding-right: 44px !important;
-  }
 
   /* Fix Chrome/Edge autofill */
   input:-webkit-autofill,

@@ -1,3 +1,8 @@
+/**
+ * Unified Password Toggle Functionality
+ * Handles password visibility toggles across all forms
+ */
+
 // Prevent multiple initializations
 let passwordTogglesInitialized = false;
 
@@ -17,6 +22,7 @@ function initPasswordToggles() {
     const input = document.getElementById(targetId);
 
     if (!input) {
+      console.warn(`Password toggle: Input not found for target: ${targetId}`);
       return;
     }
 
@@ -50,3 +56,6 @@ function initPasswordToggles() {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', initPasswordToggles);
+
+// Also try to initialize after a short delay in case DOM isn't fully ready
+setTimeout(initPasswordToggles, 100);

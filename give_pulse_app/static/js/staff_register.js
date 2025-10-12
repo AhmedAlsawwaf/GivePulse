@@ -1,29 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
-
-  // 👁 Password toggle logic
-  const toggles = document.querySelectorAll(".toggle-password");
-  toggles.forEach(toggle => {
-    const targetId = toggle.getAttribute("data-target");
-    const input = document.getElementById(targetId);
-
-    if (!input) {
-      console.warn(`⚠️ Input not found for: ${targetId}`);
-      return;
-    }
-
-    toggle.addEventListener("click", () => {
-      if (input.type === "password") {
-        input.type = "text";
-        toggle.classList.remove("bi-eye");
-        toggle.classList.add("bi-eye-slash", "active");
-      } else {
-        input.type = "password";
-        toggle.classList.remove("bi-eye-slash", "active");
-        toggle.classList.add("bi-eye");
-      }
-    });
-  });
-
+  // Password toggle functionality is now handled by the unified password-toggle.js in base.html
+  
   // 🏥 City → Hospital dynamic loading
   const citySelect = document.getElementById("id_city");
   const hospitalSelect = document.getElementById("id_hospital");

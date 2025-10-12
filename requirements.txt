@@ -1,5 +1,28 @@
-Django>=5.2.6
+# Core Django
+Django>=4.2.0,<5.0.0
+
+# Database drivers
 mysqlclient>=2.2.0
-qrcode[pil]>=8.2
-reportlab>=4.4.4
-Pillow>=10.2.0
+psycopg2-binary>=2.9.0  # PostgreSQL support
+
+# Image processing
+Pillow>=10.0.0
+
+# QR Code generation
+qrcode[pil]>=7.4.0
+
+# PDF generation
+reportlab>=4.0.0
+
+# Production server
+gunicorn>=21.0.0
+
+# Environment variables
+python-decouple>=3.8
+
+# Static files
+whitenoise>=6.5.0
+
+# Development tools (optional)
+django-debug-toolbar>=4.1.0
+django-extensions>=3.2.0
