@@ -320,7 +320,7 @@ class Donation(models.Model):
             textColor=colors.darkred,
             fontName='Helvetica-Bold'
         )
-        story.append(Paragraph("🏥 GAZA CITY GENERAL HOSPITAL", header_style))
+        story.append(Paragraph(f"{self.match.blood_request.hospital.name}", header_style))
         
         # Subtitle
         subtitle_style = ParagraphStyle(
