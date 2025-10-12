@@ -90,7 +90,7 @@ class DonorRegistrationForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control custom-input",
-                "placeholder": "+20 10 1234 5678",
+                "placeholder": "059 123 4567",
                 "id": "id_phone",
             }
         ),
@@ -168,7 +168,13 @@ class DonorRegistrationForm(forms.Form):
         p2 = cleaned.get("password2") or ""
         if p1 != p2:
             raise ValidationError({"password2": "Passwords do not match."})
-        validate_password_strength(p1)
+        
+        # Validate password strength and associate error with password1 field
+        try:
+            validate_password_strength(p1)
+        except ValidationError as e:
+            raise ValidationError({"password1": e.message})
+        
         return cleaned
 
     # ✅ FIX: add save() method
@@ -242,7 +248,7 @@ class StaffRegistrationForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control custom-input",
-                "placeholder": "+20 10 1234 5678",
+                "placeholder": "059 123 4567",
                 "id": "id_phone",
             }
         ),
@@ -319,7 +325,12 @@ class StaffRegistrationForm(forms.Form):
         p2 = cleaned.get("password2") or ""
         if p1 != p2:
             raise ValidationError({"password2": "Passwords do not match."})
-        validate_password_strength(p1)
+        
+        # Validate password strength and associate error with password1 field
+        try:
+            validate_password_strength(p1)
+        except ValidationError as e:
+            raise ValidationError({"password1": e.message})
 
         city = cleaned.get("city")
         hospital = cleaned.get("hospital")
