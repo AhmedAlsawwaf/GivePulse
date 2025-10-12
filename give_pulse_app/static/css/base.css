@@ -29,8 +29,18 @@ main { flex: 1; }
 .logo {
   height: 45px;
   transition: transform 0.3s ease;
+  animation: pulseText 2s infinite;
+  span{
+    font-size: 30px;
+  }
 }
 .logo:hover { transform: scale(1.1); }
+.brand-text {
+  font-size: 1.1rem !important;  
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
 
 .nav-link {
   color: var(--secondary-green);
@@ -47,7 +57,6 @@ main { flex: 1; }
   color: var(--primary-red);
   transform: translateY(-2px);
 }
-/* ✅ حذف الخط تحت العنصر */
 .nav-link::after {
   display: none;
 }
@@ -63,7 +72,6 @@ main { flex: 1; }
   transition: color 0.3s ease;
 }
 
-/* ✅ إضافة سهم صغير بجانب اسم المستخدم */
 .user-toggle::after {
   content: "▾";
   font-size: 0.7rem;
@@ -76,7 +84,6 @@ main { flex: 1; }
   color: var(--primary-red);
 }
 
-/* عند التفاعل */
 .user-toggle:hover,
 .user-toggle:focus,
 .nav-item.dropdown.show .user-toggle {
@@ -370,3 +377,4 @@ footer a:hover { color: #f5f5f5; }
     -webkit-line-clamp: 3;
   }
 }
+

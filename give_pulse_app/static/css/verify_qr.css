@@ -1,0 +1,49 @@
+.video-frame {
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
+
+/* Frame */
+.scan-frame {
+  width: 200px;
+  height: 200px;
+  border: 2px solid var(--primary-red);
+  border-radius: 10px;
+  position: relative;
+  animation: scanPulse 2s infinite;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
+}
+
+/* Corners */
+.scan-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--secondary-green);
+}
+
+.scan-corner.tl { top: -2px; left: -2px; border-bottom: none; border-right: none; }
+.scan-corner.tr { top: -2px; right: -2px; border-bottom: none; border-left: none; }
+.scan-corner.bl { bottom: -2px; left: -2px; border-top: none; border-right: none; }
+.scan-corner.br { bottom: -2px; right: -2px; border-top: none; border-left: none; }
+
+/* Animations */
+@keyframes scanPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.02); }
+}
+
+/* Status Colors */
+#scanStatus.success { color: var(--secondary-green) !important; }
+#scanStatus.error { color: var(--primary-red) !important; }
+
+/* Responsiveness */
+@media (max-width: 576px) {
+  .scan-frame {
+    width: 160px;
+    height: 160px;
+  }
+  .video-frame {
+    height: 240px !important;
+  }
+}

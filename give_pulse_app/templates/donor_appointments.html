@@ -4,94 +4,101 @@
 {% block title %}My Appointments - GivePulse{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2><i class="bi bi-calendar-check"></i> My Donation Appointments</h2>
-                <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
-                    <i class="bi bi-arrow-left"></i> Back to Dashboard
-                </a>
-            </div>
-            
-            {% if appointments %}
-                <div class="row">
-                    {% for appointment in appointments %}
-                        <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card h-100 shadow-sm">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0">
-                                        <i class="bi bi-calendar-event"></i> Appointment #{{ appointment.id }}
-                                    </h6>
-                                    <span class="badge 
-                                        {% if appointment.match.status == 'accepted' %}bg-warning
-                                        {% elif appointment.match.status == 'checked_in' %}bg-info
-                                        {% elif appointment.match.status == 'donated' %}bg-success
-                                        {% else %}bg-secondary{% endif %}">
-                                        {{ appointment.match.get_status_display }}
-                                    </span>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <h6 class="text-primary">Hospital</h6>
-                                        <p class="mb-1">{{ appointment.match.blood_request.hospital.name }}</p>
-                                        <small class="text-muted">{{ appointment.match.blood_request.hospital.city.name }}</small>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <h6 class="text-primary">Appointment Time</h6>
-                                        <p class="mb-1">
-                                            <i class="bi bi-calendar"></i> {{ appointment.window_start|date:"M d, Y" }}
-                                        </p>
-                                        <p class="mb-0">
-                                            <i class="bi bi-clock"></i> {{ appointment.window_start|date:"H:i" }} - {{ appointment.window_end|date:"H:i" }}
-                                        </p>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <h6 class="text-primary">Blood Request</h6>
-                                        <p class="mb-1">
-                                            <i class="bi bi-droplet"></i> {{ appointment.match.blood_request.abo }}{{ appointment.match.blood_request.rh }}
-                                        </p>
-                                        <small class="text-muted">Priority: {{ appointment.match.blood_request.get_priority_display }}</small>
-                                    </div>
-                                    
-                                    {% if appointment.qr_code_image and appointment.qr_code_image.url %}
-                                        <div class="mb-3">
-                                            <h6 class="text-primary">QR Code</h6>
-                                            <img src="{{ appointment.qr_code_image.url }}" alt="QR Code" class="img-fluid" style="max-width: 100px;">
-                                            <p class="small text-muted mt-1">Show this QR code at the hospital</p>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                                <div class="card-footer">
-                                    <div class="d-grid gap-2">
-                                        {% if appointment.match.status == 'accepted' and appointment.qr_code_image and appointment.qr_code_image.url %}
-                                            <a href="{{ appointment.qr_code_image.url }}" download class="btn btn-outline-primary btn-sm">
-                                                <i class="bi bi-download"></i> Download QR Code
-                                            </a>
-                                        {% elif appointment.match.status == 'donated' %}
-                                            <a href="{% url 'donor_donations' %}" class="btn btn-outline-success btn-sm">
-                                                <i class="bi bi-award"></i> View Certificate
-                                            </a>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="text-center py-5">
-                    <i class="bi bi-calendar-x display-1 text-muted"></i>
-                    <h4 class="mt-3 text-muted">No Appointments Found</h4>
-                    <p class="text-muted">You don't have any donation appointments yet.</p>
-                    <a href="{% url 'blood_requests_list' %}" class="btn btn-primary">
-                        <i class="bi bi-search"></i> Browse Blood Requests
-                    </a>
-                </div>
-            {% endif %}
+<div class="container py-5 animate__animated animate__fadeInUp">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-secondary-green">
+    My Donation Appointments
+    </h2>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary-custom">
+      Dashboard
+    </a>
+  </div>
+
+  {% if appointments %}
+  <div class="row">
+    {% for appointment in appointments %}
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card shadow border-0 rounded-4 overflow-hidden h-100 appointment-card">
+        <!-- Card Header -->
+        <div class="card-header d-flex justify-content-between align-items-center bg-light">
+          <h6 class="fw-semibold mb-0 text-secondary-green">
+            <i class="bi bi-calendar-event me-1"></i> Appointment #{{ appointment.id }}
+          </h6>
+          <span class="badge rounded-pill px-3 py-2
+            {% if appointment.match.status == 'accepted' %} bg-warning text-dark
+            {% elif appointment.match.status == 'checked_in' %} bg-info text-dark
+            {% elif appointment.match.status == 'donated' %} bg-success
+            {% else %} bg-secondary {% endif %}">
+            {{ appointment.match.get_status_display }}
+          </span>
         </div>
+
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="mb-3">
+            <h6 class="text-secondary-green fw-semibold"><i class="bi bi-hospital me-1"></i> Hospital</h6>
+            <p class="mb-1">{{ appointment.match.blood_request.hospital.name }}</p>
+            <small class="text-muted">{{ appointment.match.blood_request.hospital.city.name }}</small>
+          </div>
+
+          <div class="mb-3">
+            <h6 class="text-secondary-green fw-semibold"><i class="bi bi-clock me-1"></i> Appointment Time</h6>
+            <p class="mb-1">
+              <i class="bi bi-calendar"></i> {{ appointment.window_start|date:"M d, Y" }}
+            </p>
+            <p class="mb-0">
+              <i class="bi bi-clock-history"></i> {{ appointment.window_start|date:"H:i" }} - {{ appointment.window_end|date:"H:i" }}
+            </p>
+          </div>
+
+          <div class="mb-3">
+            <h6 class="text-secondary-green fw-semibold"><i class="bi bi-droplet-half me-1"></i> Blood Request</h6>
+            <p class="mb-1">{{ appointment.match.blood_request.abo }}{{ appointment.match.blood_request.rh }}</p>
+            <small class="text-muted">Priority: {{ appointment.match.blood_request.get_priority_display }}</small>
+          </div>
+
+          {% if appointment.qr_code_image and appointment.qr_code_image.url %}
+          <div class="text-center mb-3">
+            <h6 class="text-secondary-green fw-semibold"><i class="bi bi-qr-code me-1"></i> QR Code</h6>
+            <img src="{{ appointment.qr_code_image.url }}" alt="QR Code"
+                 class="img-fluid rounded shadow-sm border p-2"
+                 style="max-width: 130px;">
+            <p class="small text-muted mt-1">
+              <i class="bi bi-info-circle"></i> Show this QR code at the hospital
+            </p>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Card Footer -->
+        <div class="card-footer bg-white border-top-0">
+          <div class="d-grid gap-2">
+            {% if appointment.match.status == 'accepted' and appointment.qr_code_image and appointment.qr_code_image.url %}
+              <a href="{{ appointment.qr_code_image.url }}" download class="btn btn-primary-red btn-sm">
+                <i class="bi bi-download"></i> Download QR Code
+              </a>
+            {% elif appointment.match.status == 'donated' %}
+              <a href="{% url 'donor_donations' %}" class="btn btn-secondary-custom btn-sm">
+                <i class="bi bi-award"></i> View Certificate
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
     </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <!-- Empty State -->
+  <div class="text-center py-5">
+    <i class="bi bi-calendar-x display-1 text-muted"></i>
+    <h4 class="mt-3 text-secondary-green">No Appointments Found</h4>
+    <p class="text-muted">You don't have any donation appointments yet.</p>
+    <a href="{% url 'blood_requests_list' %}" class="btn btn-primary-red">
+      <i class="bi bi-search"></i> Browse Blood Requests
+    </a>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

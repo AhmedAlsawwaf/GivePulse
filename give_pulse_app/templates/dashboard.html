@@ -72,23 +72,23 @@
                 {% endif %}
                 
                 <!-- Blood Requests Button -->
-                <a href="{% url 'blood_requests_list' %}" class="btn btn-primary-red mt-2">
+                <a href="{% url 'blood_requests_list' %}" class="btn btn-primary-red mt-2 me-2">
                      Browse Blood Requests
                 </a>
                 
                 <!-- My Matches Button -->
-                <a href="{% url 'donor_matches' %}" class="btn btn-secondary-custom mt-2">
+                <a href="{% url 'donor_matches' %}" class="btn btn-secondary-custom mt-2 me-2">
                     My Matches
                 </a>
                 
                 <!-- My Appointments Button -->
-                <a href="{% url 'donor_appointments' %}" class="btn btn-outline-info mt-2">
-                    <i class="bi bi-calendar-check me-2"></i> My Appointments
+                <a href="{% url 'donor_appointments' %}" class="btn btn-secondary-custom mt-2 me-2">
+                   My Appointments
                 </a>
                 
                 <!-- My Donations Button -->
-                <a href="{% url 'donor_donations' %}" class="btn btn-outline-success mt-2">
-                    <i class="bi bi-award me-2"></i> My Donations
+                <a href="{% url 'donor_donations' %}" class="btn btn-secondary-custom mt-2">
+                   My Donations
                 </a>
               </div>
             {% endif %}
