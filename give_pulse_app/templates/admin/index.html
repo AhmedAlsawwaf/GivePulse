@@ -1,313 +1,337 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
 
+{% block title %}GivePulse Admin | Dashboard{% endblock %}
+
 {% block extrahead %}
-    {{ block.super }}
-    <style>
-        .dashboard-header {
-            position: relative;
-            background: linear-gradient(135deg, var(--bs-primary) 0%, #8e9f74 100%);
-            color: white;
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-        
-        .dashboard-header::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 3px;
-            background: white;
-            border-radius: 2px;
-        }
-        
-        .stat-card {
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            border: none !important;
-        }
-        
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--bs-primary) 0%, #8e9f74 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .stat-card:hover::before {
-            opacity: 1;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
-        }
-        
-        .stat-number {
-            color: var(--bs-primary);
-            font-weight: 800;
-        }
-        
-        .verification-section {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .verification-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--bs-primary) 0%, #8e9f74 100%);
-        }
-        
-        .verification-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: 1px solid #dee2e6;
-            border-radius: 12px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-        }
-        
-        .verification-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        .quick-action-card {
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: inherit;
-            border: none !important;
-        }
-        
-        .quick-action-card:hover {
-            transform: translateY(-5px);
-            color: inherit;
-            text-decoration: none;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
-        }
-        
-        .quick-action-icon {
-            color: var(--bs-primary);
-            font-size: 2.5rem;
-        }
-        
-        .section-title {
-            position: relative;
-            padding-left: 1rem;
-        }
-        
-        .section-title::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 4px;
-            height: 24px;
-            background: linear-gradient(135deg, var(--bs-primary) 0%, #8e9f74 100%);
-            border-radius: 2px;
-        }
-        .color-white{
-            color: white;
-        }
-    </style>
+{{ block.super }}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="{% static 'css/admin_dashboard.css' %}" rel="stylesheet">
+<style>
+:root {
+  --primary-red: #ED3744;
+  --secondary-green: #A5B68E;
+  --light-gray: #F8F9FA;
+  --white: #FFFFFF;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--light-gray);
+}
+
+#header {
+  background: linear-gradient(90deg, var(--light-gray), var(--secondary-green)) !important;
+  border: none !important;
+  padding: 1rem 2rem !important;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+#header {
+  background-color: #a5b68e !important; 
+  border-bottom: none !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+  padding: 0 2rem !important;
+}
+
+#header h1, 
+#header h1 a {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 1.5rem !important;
+  text-decoration: none !important;
+}
+
+#user-tools {
+  color: white !important;
+  font-weight: 500 !important;
+}
+
+#user-tools a {
+  color: white !important;
+  text-decoration: none !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+}
+
+#user-tools a:hover {
+  background-color: rgba(255,255,255,0.2) !important;
+  color: #fff !important;
+}
+
+#branding h1, #branding h1 a {
+  color: #fff !important;
+  font-weight: 700 !important;
+  font-size: 1.3rem !important;
+  text-decoration: none !important;
+}
+#user-tools {
+  color: #fff !important;
+}
+#user-tools a {
+  color: #fff !important;
+  padding: 8px 14px;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+#user-tools a:hover {
+  background-color: rgba(255,255,255,0.2);
+}
+
+.admin-nav-links {
+  background: #fff;
+  padding: 0.6rem 1.2rem;
+  text-align: right;
+  border-bottom: 2px solid var(--secondary-green);
+}
+.back-to-site-link {
+  display: inline-block;
+  background: linear-gradient(90deg, var(--primary-red), var(--secondary-green));
+  color: #fff !important;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+.back-to-site-link:hover {
+  background: var(--secondary-green);
+  transform: translateY(-2px);
+}
+
+.dashboard-header {
+  text-align: center;
+  background: linear-gradient(90deg, var(--primary-red), var(--secondary-green));
+  color: #fff;
+  border-radius: 15px;
+  padding: 2.5rem;
+  margin: 2rem 0;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+  animation: fadeIn 1s ease;
+}
+.dashboard-header h1 {
+  font-weight: 700;
+}
+.dashboard-header p {
+  opacity: 0.9;
+}
+
+.stat-card {
+  background: #fff;
+  border: none;
+  border-radius: 12px;
+  text-align: center;
+  padding: 2rem 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+}
+.stat-card .icon {
+  font-size: 2.5rem;
+  color: var(--primary-red);
+  margin-bottom: 1rem;
+}
+.stat-number {
+  color: var(--primary-red);
+  font-size: 2.3rem;
+  font-weight: 700;
+}
+
+.section-title {
+  font-weight: 700;
+  color: var(--primary-red);
+  border-left: 6px solid var(--secondary-green);
+  padding-left: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.verification-card {
+  background: #fff;
+  border-radius: 12px;
+  border-left: 5px solid var(--secondary-green);
+  padding: 1.5rem;
+  transition: 0.3s ease;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+.verification-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+.verification-card h5 {
+  color: var(--primary-red);
+  font-weight: 700;
+}
+
+.quick-action-card {
+  text-align: center;
+  border: none;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  transition: all 0.3s;
+  text-decoration: none;
+  color: inherit;
+}
+.quick-action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+.quick-action-icon {
+  font-size: 2.4rem;
+  color: var(--secondary-green);
+  margin-bottom: 1rem;
+}
+
+footer {
+  background: linear-gradient(90deg, var(--light-gray), var(--secondary-green));
+  color: #fff;
+  border-radius: 10px 10px 0 0;
+  padding: 1.5rem 0;
+  margin-top: 3rem;
+}
+footer i {
+  color: #fff;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(15px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<!-- Dashboard Header -->
-<div class="dashboard-header">
-    <h1 class="display-4 fw-bold mb-3">
-        <i class="bi bi-speedometer2 me-3"></i>
-        Admin Dashboard
-    </h1>
-    <p class="lead mb-0">Blood Donation Management System Overview</p>
+<div class="admin-nav-links">
+  <a href="{% url 'index' %}" class="back-to-site-link">
+    <i class="bi bi-arrow-left"></i> Back to Site
+  </a>
 </div>
 
-<!-- Statistics Cards -->
-<div class="row g-4 mb-5">
-    <div class="col-lg-3 col-md-6">
-        <div class="stat-card card h-100 shadow-sm">
-            <div class="card-body text-center p-4">
-                <div class="mb-3">
-                    <i class="bi bi-hospital text-primary" style="font-size: 2.5rem;"></i>
-                </div>
-                <div class="stat-number display-4 fw-bold mb-2">{{ total_hospitals }}</div>
-                <div class="text-muted text-uppercase fw-semibold small">Total Hospitals</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6">
-        <div class="stat-card card h-100 shadow-sm">
-            <div class="card-body text-center p-4">
-                <div class="mb-3">
-                    <i class="bi bi-people text-primary" style="font-size: 2.5rem;"></i>
-                </div>
-                <div class="stat-number display-4 fw-bold mb-2">{{ total_staff }}</div>
-                <div class="text-muted text-uppercase fw-semibold small">Total Staff</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6">
-        <div class="stat-card card h-100 shadow-sm">
-            <div class="card-body text-center p-4">
-                <div class="mb-3">
-                    <i class="bi bi-heart text-primary" style="font-size: 2.5rem;"></i>
-                </div>
-                <div class="stat-number display-4 fw-bold mb-2">{{ total_donors }}</div>
-                <div class="text-muted text-uppercase fw-semibold small">Total Donors</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6">
-        <div class="stat-card card h-100 shadow-sm">
-            <div class="card-body text-center p-4">
-                <div class="mb-3">
-                    <i class="bi bi-droplet text-primary" style="font-size: 2.5rem;"></i>
-                </div>
-                <div class="stat-number display-4 fw-bold mb-2">{{ total_requests }}</div>
-                <div class="text-muted text-uppercase fw-semibold small">Blood Requests</div>
-            </div>
-        </div>
-    </div>
+<div class="dashboard-header animate__animated animate__fadeInDown">
+  <h1><i class="bi bi-speedometer2 me-2"></i> GivePulse Admin Dashboard</h1>
+  <p>Monitor and manage your blood donation system efficiently</p>
 </div>
 
-<!-- Verification Management Section -->
-<div class="verification-section bg-white rounded-3 shadow-sm border p-4 mb-5">
-    <h2 class="section-title h4 fw-bold text-dark mb-4">
-        <i class="bi bi-shield-check me-2"></i>
-        Verification Management
-    </h2>
-    
-    <div class="row g-4">
-        <div class="col-md-6">
-            <div class="verification-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="bi bi-hospital text-primary" style="font-size: 2rem;"></i>
-                        </div>
-                        <div>
-                            <h5 class="mb-1 fw-bold">Hospitals</h5>
-                            <p class="mb-0 text-muted small">
-                                <span class="badge bg-success me-1">{{ verified_hospitals }} verified</span>
-                                <span class="badge bg-warning">{{ unverified_hospitals }} pending</span>
-                            </p>
-                        </div>
-                    </div>
-                    <div class="btn-group" role="group">
-                        <a href="{% url 'admin:give_pulse_app_hospital_changelist' %}?is_verified__exact=0" 
-                           class="btn btn-outline-primary btn-sm text-white">
-                            <i class="bi bi-eye"></i> Pending
-                        </a>
-                        <a href="{% url 'admin:give_pulse_app_hospital_changelist' %}?is_verified__exact=1" 
-                           class="btn btn-primary btn-sm text-white">
-                            <i class="bi bi-check-circle"></i> Verified
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="verification-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="bi bi-people text-primary" style="font-size: 2rem;"></i>
-                        </div>
-                        <div>
-                            <h5 class="mb-1 fw-bold">Staff Members</h5>
-                            <p class="mb-0 text-muted small">
-                                <span class="badge bg-success me-1">{{ verified_staff }} verified</span>
-                                <span class="badge bg-warning">{{ unverified_staff }} pending</span>
-                            </p>
-                        </div>
-                    </div>
-                    <div class="btn-group" role="group">
-                        <a href="{% url 'admin:give_pulse_app_staff_changelist' %}?is_verified__exact=0" 
-                           class="btn btn-outline-primary btn-sm text-white">
-                            <i class="bi bi-eye"></i> Pending
-                        </a>
-                        <a href="{% url 'admin:give_pulse_app_staff_changelist' %}?is_verified__exact=1" 
-                           class="btn btn-primary btn-sm text-white">
-                            <i class="bi bi-check-circle"></i> Verified
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="row g-4 mb-4">
+  <div class="col-lg-3 col-md-6">
+    <div class="stat-card">
+      <div class="icon"><i class="bi bi-hospital"></i></div>
+      <div class="stat-number">{{ total_hospitals }}</div>
+      <div class="fw-semibold text-muted">Hospitals</div>
     </div>
+  </div>
+  <div class="col-lg-3 col-md-6">
+    <div class="stat-card">
+      <div class="icon"><i class="bi bi-people"></i></div>
+      <div class="stat-number">{{ total_staff }}</div>
+      <div class="fw-semibold text-muted">Staff</div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-6">
+    <div class="stat-card">
+      <div class="icon"><i class="bi bi-heart"></i></div>
+      <div class="stat-number">{{ total_donors }}</div>
+      <div class="fw-semibold text-muted">Donors</div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-6">
+    <div class="stat-card">
+      <div class="icon"><i class="bi bi-droplet"></i></div>
+      <div class="stat-number">{{ total_requests }}</div>
+      <div class="fw-semibold text-muted">Requests</div>
+    </div>
+  </div>
 </div>
 
-<!-- Quick Actions Section -->
-<div class="bg-white rounded-3 shadow-sm border p-4">
-    <h2 class="section-title h4 fw-bold text-dark mb-4">
-        <i class="bi bi-lightning me-2"></i>
-        Quick Actions
-    </h2>
-    
-    <div class="row g-4">
-        <div class="col-lg-3 col-md-6">
-            <a href="{% url 'admin:give_pulse_app_hospital_changelist' %}" class="quick-action-card card h-100 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <div class="quick-action-icon mb-3">
-                        <i class="bi bi-hospital"></i>
-                    </div>
-                    <h6 class="fw-bold mb-2">Hospitals</h6>
-                    <p class="text-muted small mb-0">Manage hospital registrations and verification</p>
-                </div>
-            </a>
+<!-- Verification Section -->
+<div class="mb-5">
+  <h2 ><i class="bi bi-shield-check me-2"></i>Verification Management</h2>
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="verification-card">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h5>Hospitals</h5>
+            <p class="mb-1 text-muted small">
+              <span class="badge bg-success">{{ verified_hospitals }} Verified</span>
+              <span class="badge bg-warning text-dark">{{ unverified_hospitals }} Pending</span>
+            </p>
+          </div>
+          <a href="{% url 'admin:give_pulse_app_hospital_changelist' %}" class="btn btn-sm btn-outline-danger">
+            Manage
+          </a>
         </div>
-        <div class="col-lg-3 col-md-6">
-            <a href="{% url 'admin:give_pulse_app_staff_changelist' %}" class="quick-action-card card h-100 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <div class="quick-action-icon mb-3">
-                        <i class="bi bi-people"></i>
-                    </div>
-                    <h6 class="fw-bold mb-2">Staff</h6>
-                    <p class="text-muted small mb-0">Manage staff members and permissions</p>
-                </div>
-            </a>
-        </div>
-        <div class="col-lg-3 col-md-6">
-            <a href="{% url 'admin:give_pulse_app_donor_changelist' %}" class="quick-action-card card h-100 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <div class="quick-action-icon mb-3">
-                        <i class="bi bi-heart"></i>
-                    </div>
-                    <h6 class="fw-bold mb-2">Donors</h6>
-                    <p class="text-muted small mb-0">Manage blood donors and profiles</p>
-                </div>
-            </a>
-        </div>
-        <div class="col-lg-3 col-md-6">
-            <a href="{% url 'admin:give_pulse_app_bloodrequest_changelist' %}" class="quick-action-card card h-100 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <div class="quick-action-icon mb-3">
-                        <i class="bi bi-droplet"></i>
-                    </div>
-                    <h6 class="fw-bold mb-2">Blood Requests</h6>
-                    <p class="text-muted small mb-0">Manage blood requests and matches</p>
-                </div>
-            </a>
-        </div>
+      </div>
     </div>
+    <div class="col-md-6">
+      <div class="verification-card">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h5>Staff</h5>
+            <p class="mb-1 text-muted small">
+              <span class="badge bg-success">{{ verified_staff }} Verified</span>
+              <span class="badge bg-warning text-dark">{{ unverified_staff }} Pending</span>
+            </p>
+          </div>
+          <a href="{% url 'admin:give_pulse_app_staff_changelist' %}" class="btn btn-sm btn-outline-danger">
+            Manage
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- Default Admin Content -->
+<!-- Quick Actions -->
+<h2 ><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h2>
+<div class="row g-4">
+  <div class="col-lg-3 col-md-6">
+    <a href="{% url 'admin:give_pulse_app_hospital_changelist' %}" class="quick-action-card card p-4">
+      <div class="quick-action-icon"><i class="bi bi-hospital"></i></div>
+      <h6 class="fw-bold">Hospitals</h6>
+      <p class="small text-muted mb-0">Manage and verify hospital records</p>
+    </a>
+  </div>
+  <div class="col-lg-3 col-md-6">
+    <a href="{% url 'admin:give_pulse_app_staff_changelist' %}" class="quick-action-card card p-4">
+      <div class="quick-action-icon"><i class="bi bi-people"></i></div>
+      <h6 class="fw-bold">Staff</h6>
+      <p class="small text-muted mb-0">View and manage staff members</p>
+    </a>
+  </div>
+  <div class="col-lg-3 col-md-6">
+    <a href="{% url 'admin:give_pulse_app_donor_changelist' %}" class="quick-action-card card p-4">
+      <div class="quick-action-icon"><i class="bi bi-heart"></i></div>
+      <h6 class="fw-bold">Donors</h6>
+      <p class="small text-muted mb-0">Manage blood donors and data</p>
+    </a>
+  </div>
+  <div class="col-lg-3 col-md-6">
+    <a href="{% url 'admin:give_pulse_app_bloodrequest_changelist' %}" class="quick-action-card card p-4">
+      <div class="quick-action-icon"><i class="bi bi-droplet"></i></div>
+      <h6 class="fw-bold">Blood Requests</h6>
+      <p class="small text-muted mb-0">Monitor and approve requests</p>
+    </a>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block footer %}
+<footer>
+  <div class="text-center">
+    <p class="mb-1 fw-semibold"><i class="bi bi-heart-pulse me-2"></i> GivePulse Blood Donation Management</p>
+    <small>&copy; 2024 All Rights Reserved</small>
+  </div>
+</footer>
+{% endblock %}
+
+{% block extrajs %}
 {{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

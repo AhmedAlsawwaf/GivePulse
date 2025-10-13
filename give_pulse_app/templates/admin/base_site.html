@@ -4,11 +4,11 @@
 {% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
 
 {% block branding %}
-<div class="navbar-brand d-flex align-items-center bg-white">
+<div class="navbar-brand d-flex align-items-center bg-white admin-nav-links-header ">
     <a href="{% url 'admin:index' %}" class="d-flex align-items-center text-decoration-none">
         <img src="{% static 'images/logo.png' %}" alt="GivePulse Logo" class="me-2" style="height: 38px;">
-        <h1 class="brand-text m-0">
-            <span class="text-primary-red">Give</span><span class="text-secondary-green">Pulse</span>
+        <h1 class="brand-text m-0 text-secondary-green">
+         <span class="text-secondary-green" >GivePulse</span> 
             <span class="text-muted ms-2" style="font-size: 0.8em; font-weight: 400;">Admin</span>
         </h1>
     </a>
@@ -17,7 +17,7 @@
 
 {% block nav-global %}
 <!-- Add Back to Site link -->
-<div class="admin-nav-links bg-white">
+<div class="admin-nav-links ">
     <a href="{% url 'index' %}" class="back-to-site-link">
         <i class="bi bi-arrow-left"></i> Back to Site
     </a>
@@ -34,7 +34,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Custom Admin Styles -->
     <style>
-        /* CSS Variables */
         :root {
             --bs-primary: #a5b68e;
             --bs-primary-rgb: 165, 182, 142;
@@ -51,34 +50,72 @@
             --admin-sidebar-hover: #34495e;
         }
         
-        /* Base Styles */
         body {
             font-family: var(--bs-body-font-family) !important;
             background-color: var(--bs-light) !important;
             line-height: 1.6 !important;
         }
-        
-        /* Header */
-        #header {
-            background: linear-gradient(135deg, var(--bs-primary) 0%, #8e9f74 100%) !important;
-            border-bottom: none !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
-            padding: 0 2rem !important;
+        .text-secondary-green{
+            color: var(--bs-primary) 
         }
-        
-        
-        #header h1, #header h1 a {
-            color: white !important;
-            font-weight: 600 !important;
-            font-size: 1.5rem !important;
-            text-decoration: none !important;
-        }
-        
-        #header h1 a:hover {
-            color: white !important;
-            opacity: 0.9 !important;
-        }
-        
+
+#header {
+  background-color: #a5b68e !important; 
+  border-bottom: none !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+  padding: 0.8rem 2rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+#header h1,
+#header h1 a,
+.navbar-brand .brand-text {
+  color: #2d2d2d !important; 
+  font-weight: 700 !important;
+  font-size: 1.6rem !important;
+  text-decoration: none !important;
+}
+
+#header .brand-text .text-muted {
+  color: #444 !important; 
+  font-weight: 500 !important;
+}
+
+#user-tools {
+  color: #333 !important;
+  font-weight: 500 !important;
+}
+
+#user-tools a {
+  color: #2d2d2d !important;
+  text-decoration: none !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+}
+
+#user-tools a:hover {
+  background-color: rgba(0,0,0,0.05) !important;
+  color: #ed3744 !important;
+}
+
+.back-to-site-link {
+  background-color: #a5b68e !important;
+  color: #2d2d2d !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  padding: 8px 16px !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+.back-to-site-link:hover {
+  background-color: #93a77a !important;
+  color: #fff !important;
+}
+
         #user-tools {
             color: white !important;
         }
@@ -98,7 +135,6 @@
             transform: translateY(-1px) !important;
         }
         
-        /* Back to Site link styling */
         .admin-nav-links {
             background: rgba(255,255,255,0.1) !important;
             padding: 0.5rem 1rem !important;
@@ -126,7 +162,6 @@
             transform: translateY(-1px) !important;
         }
         
-        /* Sidebar */
         #nav-sidebar {
             background: var(--admin-sidebar-bg) !important;
             border-right: none !important;
@@ -200,7 +235,6 @@
             border: none !important;
         }
         
-        /* Breadcrumbs */
         .breadcrumbs {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
             border-radius: 8px !important;
@@ -434,6 +468,9 @@
         .text-primary-red {
             color: #ed3744 !important;
         }
+        .bg-white {
+            background: white !important;
+        }
         
         .text-secondary-green {
             color: #a5b68e !important;
@@ -461,6 +498,153 @@
             }
             
         }
+#nav-sidebar {
+  background-color: #dbe6cc !important;
+  border-right: none !important;
+  padding: 1.2rem 0 !important;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+#nav-sidebar .module {
+  background-color: #ffffff !important;
+  border-radius: 10px !important;
+  margin: 0 1rem 1rem 1rem !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05) !important;
+  overflow: hidden !important;
+  transition: all 0.3s ease !important;
+}
+
+#nav-sidebar .module caption {
+  background-color: #a5b68e !important; 
+  color: #fff !important;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 0.8rem 1rem !important;
+  font-size: 0.85rem;
+  text-align: center;
+  border: none !important;
+  letter-spacing: 0.5px;
+}
+
+#nav-sidebar .module a {
+  color: #333 !important;
+  padding: 0.8rem 1.1rem !important;
+  font-weight: 500;
+  text-decoration: none !important;
+  display: block !important;
+  border-left: 4px solid transparent !important;
+  transition: all 0.3s ease !important;
+}
+
+#nav-sidebar .module a:hover {
+  background-color: #f5f5f5 !important;
+  border-left: 4px solid #a5b68e !important;
+  color: #a5b68e !important;
+  padding-left: 1.3rem !important;
+}
+
+#nav-sidebar .addlink::before,
+#nav-sidebar .addlink::after {
+  content: none !important;
+  display: none !important;
+  visibility: hidden !important;
+}
+
+#nav-sidebar .addlink {
+  color: #a5b68e !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  font-size: 0.9rem !important;
+  padding-left: 0 !important;
+}
+
+#nav-sidebar .addlink:hover {
+  color: #ed3744 !important; 
+  text-decoration: underline !important;
+}
+
+#nav-filter {
+  background-color: #eaf0de !important;
+  border: 1px solid #cdd8bc !important;
+  border-radius: 6px !important;
+  padding: 0.5rem !important;
+  margin: 0 1rem 1rem 1rem !important;
+}
+
+#nav-filter input {
+  border: none !important;
+  background: transparent !important;
+  width: 100% !important;
+  font-size: 0.9rem !important;
+  color: #333 !important;
+  outline: none !important;
+}
+#nav-sidebar .addlink::before,
+#nav-sidebar .addlink::after,
+#nav-sidebar a.addlink::before,
+#nav-sidebar a.addlink::after,
+a.addlink::before,
+a.addlink::after,
+.addlink:before,
+.addlink:after {
+  content: "" !important;
+  display: none !important;
+  visibility: hidden !important;
+}
+
+#nav-sidebar .addlink {
+  color: #a5b68e !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  font-size: 0.9rem !important;
+  padding-left: 0 !important;
+  background: none !important;
+}
+
+#nav-sidebar .addlink:hover {
+  color: #ed3744 !important;
+  text-decoration: underline !important;
+}
+/* ====== Fix Admin Search Bar Alignment ====== */
+#changelist-search {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+  margin-bottom: 1rem !important;
+}
+
+#changelist-search input[type="text"] {
+  height: 42px !important; /* نفس ارتفاع الزر */
+  border: 2px solid #dee2e6 !important;
+  border-radius: 8px !important;
+  padding: 0 12px !important;
+  font-size: 0.95rem !important;
+  flex: 1 !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+#changelist-search input[type="text"]:focus {
+  border-color: var(--secondary-green) !important;
+  box-shadow: 0 0 0 3px rgba(165, 182, 142, 0.25) !important;
+  outline: none !important;
+}
+
+#changelist-search button[type="submit"] {
+  height: 42px !important;
+  background-color: var(--secondary-green) !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  padding: 0 18px !important;
+  transition: all 0.3s ease !important;
+}
+
+#changelist-search button[type="submit"]:hover {
+  background-color: #93a77a !important;
+  transform: translateY(-2px);
+}
+
     </style>
     <meta name="theme-color" content="#a5b68e">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
