@@ -2,7 +2,7 @@
 
 A comprehensive Django-based web application for managing blood donation requests, donor matching, and hospital coordination.
 
-🌐 **Live Application**: [http://13.61.22.133](http://13.61.22.133)
+🌐 **Live Application**: [http://13.53.212.71](http://13.53.212.71)
 
 ## 🌟 Features
 
@@ -56,7 +56,7 @@ A comprehensive Django-based web application for managing blood donation request
    cd GivePulse
    ```
 
-   Or visit the live application: [http://13.61.22.133](http://13.61.22.133)
+   Or visit the live application: [http://13.53.212.71](http://13.53.212.71)
 
 2. **Create a virtual environment**
    ```bash
@@ -166,15 +166,24 @@ The project includes useful management commands:
 
 ## 🚀 Deployment
 
-The application is currently deployed and running at: [http://13.61.22.133](http://13.61.22.133)
+The application is currently deployed and running at: [http://13.53.212.71](http://13.53.212.71)
 
 ### Production Features
 - **AWS EC2 Deployment**: Running on Ubuntu server
 - **Nginx + Gunicorn**: Production-ready web server setup
-- **MySQL Database**: Production database with optimized settings
+- **MySQL Database**: Production database with comprehensive Palestinian data
 - **SSL Ready**: HTTPS configuration available
 - **Static Files**: Optimized static file serving
 - **Environment Variables**: Secure configuration management
+
+### 🇵🇸 Palestinian Data Coverage
+- **15 Governorates**: Complete Palestinian administrative divisions
+- **140 Cities**: Real Palestinian cities across all governorates
+- **374 Hospitals**: Comprehensive hospital network including major medical centers
+- **25+ Donors**: Palestinian users with authentic names and blood types
+- **8 Staff Members**: Doctors and nurses assigned to real hospitals
+- **22+ Donations**: Completed blood donations with certificates
+- **7 Success Stories**: Inspiring stories from Palestinian hospitals
 
 See `README_DEPLOYMENT.md` for detailed deployment instructions.
 
@@ -207,16 +216,19 @@ For support and questions:
 
 - ✅ **Live Deployment**: Application successfully deployed to AWS EC2
 - ✅ **Production Ready**: Full production setup with Nginx and Gunicorn
+- ✅ **Comprehensive Palestinian Data**: Complete geographical and medical infrastructure
+- ✅ **374 Hospitals**: Full hospital network across all Palestinian cities
+- ✅ **Real Data**: Authentic Palestinian names, cities, and medical centers
 - ✅ **Database Optimization**: MySQL database with production data
 - ✅ **Security Hardening**: Production security configurations
 - ✅ **Performance Optimization**: Static files and caching configured
 - ✅ **Code Cleanup**: Removed temporary scripts and organized codebase
-- ✅ **Documentation**: Updated README with live application link
+- ✅ **Documentation**: Updated README with live application link and new domain
 
 ## 🎯 Quick Access
 
-- **Live Application**: [http://13.61.22.133](http://13.61.22.133)
-- **Admin Panel**: [http://13.61.22.133/admin/](http://13.61.22.133/admin/)
+- **Live Application**: [http://13.53.212.71](http://13.53.212.71)
+- **Admin Panel**: [http://13.53.212.71/admin/](http://13.53.212.71/admin/)
 - **GitHub Repository**: [https://github.com/AhmedAlsawwaf/GivePulse](https://github.com/AhmedAlsawwaf/GivePulse)
 
 ---
