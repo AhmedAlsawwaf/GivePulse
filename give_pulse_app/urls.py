@@ -1,4 +1,5 @@
 from django.urls import path
+from django.shortcuts import render
 from . import views
 urlpatterns = [
     path("", views.index, name="index"),
@@ -20,6 +21,7 @@ urlpatterns = [
     path("requests/", views.blood_requests_list, name="blood_requests_list"),
     path("requests/<int:request_id>/", views.blood_request_detail, name="blood_request_detail"),
     path("requests/<int:request_id>/match/", views.match_blood_request, name="match_blood_request"),
+    path("requests/<int:request_id>/match-ajax/", views.match_blood_request_ajax, name="match_blood_request_ajax"),
     path("matches/<int:match_id>/accept/", views.accept_match, name="accept_match"),
     path("matches/<int:match_id>/decline/", views.decline_match, name="decline_match"),
     
@@ -37,4 +39,5 @@ urlpatterns = [
     path("verify-certificate/", views.verify_certificate, name="verify_certificate"),
     path("complete-donation/<int:appointment_id>/", views.complete_donation, name="complete_donation"),
     path("download-certificate/<int:donation_id>/", views.download_certificate, name="download_certificate"),
+    
 ]

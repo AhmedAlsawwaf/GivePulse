@@ -110,7 +110,7 @@
                 </p>
 
                 <!-- Staff Actions -->
-                {% if user.staff %}
+                {% if user.staff.is_verified %}
                   <div class="d-grid gap-2">
                     <a href="{% url 'blood_request_new' %}" class="btn btn-primary-red">
                        Create Blood Request
@@ -120,9 +120,11 @@
                     </a>
                   </div>
                 {% else %}
-                  <p class="text-muted mt-2">
-                    <em>Your account must be verified to create requests.</em>
-                  </p>
+                  <div class="alert alert-warning mt-3" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Account Pending Verification</strong><br>
+                    Your staff account is pending admin verification. You cannot create or manage blood requests until your account is verified.
+                  </div>
                 {% endif %}
               </div>
             {% endif %}

@@ -2,11 +2,17 @@ from __future__ import annotations
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_GET
 from django.http import JsonResponse, HttpRequest, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+import json
+import logging
 from django.contrib import messages
+
+logger = logging.getLogger(__name__)
 from django.db import models
 from functools import wraps
 from .forms import LoginForm, DonorRegistrationForm, StaffRegistrationForm, BloodRequestForm
-from .models import ContactMessage, User, Hospital, BloodRequest, Match, DonationAppointment, Donation, SuccessStory
+from .models import ContactMessage, User, Staff, Hospital, BloodRequest, Match, DonationAppointment, Donation, SuccessStory
 from django.db.models import Count
 from .forms import ContactForm
 from django.core.mail import send_mail, BadHeaderError
@@ -30,7 +36,7 @@ def require_login(view_func):
     return wrapper
 
 def require_staff(view_func):
-    """Decorator to require staff authentication"""
+    """Decorator to require staff authentication and verification"""
     @wraps(view_func)
     def wrapper(request, user, *args, **kwargs):
         if not hasattr(user, "staff"):
@@ -41,6 +47,10 @@ def require_staff(view_func):
         if not staff.hospital_id:
             messages.error(request, "Your staff profile has no hospital assigned.")
             return redirect("index")
+        
+        if not staff.is_verified:
+            messages.error(request, "Your staff account is pending verification. You cannot create or manage blood requests until an admin verifies your account.")
+            return redirect("dashboard")
         
         return view_func(request, user, staff, *args, **kwargs)
     return wrapper
@@ -112,10 +122,21 @@ def index(request):
     # Get success stories from database (limit to first 4)
     success_stories = SuccessStory.objects.filter(is_published=True).order_by('display_order', '-created_at')[:4]
     
+    # Get global statistics
+    from .models import Donation, Donor, Hospital
+    total_donations = Donation.objects.count()
+    total_lives_saved = total_donations  # Each donation saves one life
+    total_donors = Donor.objects.count()
+    total_hospitals = Hospital.objects.filter(is_verified=True).count()
+    
     context = {
         "user": user,
         "leaderboard": leaderboard,
-        "success_stories": success_stories
+        "success_stories": success_stories,
+        "total_donations": total_donations,
+        "total_lives_saved": total_lives_saved,
+        "total_donors": total_donors,
+        "total_hospitals": total_hospitals,
     }
     response = render(request, "index.html", context)
     # Add cache-busting headers to prevent caching
@@ -184,27 +205,10 @@ def hospitals_by_city(request):
 def dashboard(request, user):
     return render(request, "dashboard.html", {"user": user})
 
-def create_blood_request(request: HttpRequest) -> HttpResponse:
-    uid = request.session.get("user_id")
-    if not uid:
-        messages.error(request, "Please log in.")
-        return redirect("login")
-
-    try:
-        user = User.objects.get(pk=uid)
-    except User.DoesNotExist:
-        messages.error(request, "Invalid session. Please log in again.")
-        return redirect("login")
-
-    if not hasattr(user, "staff"):
-        messages.error(request, "Only staff can create blood requests.")
-        return redirect("index")
-
-    staff = user.staff
-    if not staff.hospital_id:
-        messages.error(request, "Your staff profile has no hospital assigned.")
-        return redirect("index")
-
+@require_login
+@require_staff
+def create_blood_request(request, user, staff):
+    """Create a new blood request (staff only, verified)"""
     if request.method == "POST":
         form = BloodRequestForm(request.POST, staff=staff)
         if form.is_valid():
@@ -398,26 +402,89 @@ def match_blood_request(request, request_id):
     }
     return render(request, "match_blood_request.html", context)
 
-def accept_match(request, match_id):
-    """Accept a donor match"""
-    user = None
-    if request.session.get("user_id"):
+
+def match_blood_request_ajax(request, request_id):
+    """AJAX endpoint for matching blood requests"""
+    logger.info(f"AJAX match request for request_id: {request_id}, method: {request.method}")
+    
+    # Handle authentication using session (since we're not using Django's built-in auth)
+    if not request.session.get("user_id"):
+        logger.warning("No user_id in session")
+        return JsonResponse({"success": False, "error": "Authentication required"})
+    
+    try:
+        user = User.objects.get(pk=request.session["user_id"])
+        logger.info(f"User found: {user.email}")
+    except User.DoesNotExist:
+        logger.warning(f"User not found for session user_id: {request.session.get('user_id')}")
+        return JsonResponse({"success": False, "error": "Authentication required"})
+
+    if not hasattr(user, "donor"):
+        return JsonResponse({"success": False, "error": "Only donors can match blood requests"})
+
+    blood_request = get_object_or_404(BloodRequest, pk=request_id)
+    
+    # Check if request is still accepting matches (open or partial)
+    if blood_request.status not in ["open", "partial"]:
+        return JsonResponse({
+            "success": False, 
+            "error": f"This blood request is no longer accepting matches (Status: {blood_request.get_status_display()})"
+        })
+    
+    # Check if already matched
+    if Match.objects.filter(blood_request=blood_request, donor=user.donor).exists():
+        return JsonResponse({"success": False, "error": "You have already matched this blood request"})
+    
+    # Check blood type compatibility
+    donor = user.donor
+    is_compatible = _check_blood_type_compatibility(donor.abo, donor.rh, blood_request.abo, blood_request.rh)
+    
+    if not is_compatible:
+        return JsonResponse({
+            "success": False, 
+            "error": f"Your blood type ({donor.abo}{donor.rh}) is not compatible with this request ({blood_request.abo}{blood_request.rh})"
+        })
+    
+    # Check if donor is in cooldown period
+    if donor.is_in_cooldown():
+        from django.utils import timezone
+        return JsonResponse({
+            "success": False, 
+            "error": f"You are in a cooldown period until {donor.cooldown_until.strftime('%B %d, %Y at %I:%M %p')}. You cannot match new requests until then."
+        })
+
+    if request.method == "POST":
         try:
-            user = User.objects.get(pk=request.session["user_id"])
-        except User.DoesNotExist:
-            _logout(request)
-            return redirect("login")
-    else:
-        return redirect("login")
+            # Create match
+            match = Match.objects.create(
+                blood_request=blood_request,
+                donor=user.donor,
+                status="pending"
+            )
+            logger.info(f"Match created successfully: {match.id}")
+            
+            response_data = {
+                "success": True, 
+                "message": f"Match #{match.id} created successfully. Staff will review your match.",
+                "match_id": match.id
+            }
+            logger.info(f"Returning response: {response_data}")
+            return JsonResponse(response_data)
+            
+        except Exception as e:
+            logger.error(f"Error creating match: {str(e)}")
+            return JsonResponse({
+                "success": False,
+                "error": f"Failed to create match: {str(e)}"
+            })
+    
+    logger.warning(f"Invalid request method: {request.method}")
+    return JsonResponse({"success": False, "error": "Invalid request method"})
 
-    if not hasattr(user, "staff"):
-        messages.error(request, "Only staff can accept matches.")
-        return redirect("index")
-
-    staff = user.staff
-    if not staff.hospital_id:
-        messages.error(request, "Your staff profile has no hospital assigned.")
-        return redirect("index")
+@require_login
+@require_staff
+def accept_match(request, user, staff, match_id):
+    """Accept a donor match (staff only, verified)"""
 
     match = get_object_or_404(Match, pk=match_id, blood_request__hospital=staff.hospital)
     
@@ -758,26 +825,10 @@ def staff_blood_requests(request, user, staff):
     }
     return render(request, "staff_blood_requests.html", context)
 
-def manage_matches(request, request_id):
-    """Staff manage matches for a specific blood request"""
-    user = None
-    if request.session.get("user_id"):
-        try:
-            user = User.objects.get(pk=request.session["user_id"])
-        except User.DoesNotExist:
-            _logout(request)
-            return redirect("login")
-    else:
-        return redirect("login")
-
-    if not hasattr(user, "staff"):
-        messages.error(request, "Only staff can manage matches.")
-        return redirect("index")
-
-    staff = user.staff
-    if not staff.hospital_id:
-        messages.error(request, "Your staff profile has no hospital assigned.")
-        return redirect("index")
+@require_login
+@require_staff
+def manage_matches(request, user, staff, request_id):
+    """Staff manage matches for a specific blood request (staff only, verified)"""
 
     blood_request = get_object_or_404(BloodRequest, pk=request_id, hospital=staff.hospital)
     matches = Match.objects.filter(blood_request=blood_request).select_related(
@@ -808,26 +859,10 @@ def donor_matches(request, user):
     }
     return render(request, "donor_matches.html", context)
 
-def decline_match(request, match_id):
-    """Decline a donor match"""
-    user = None
-    if request.session.get("user_id"):
-        try:
-            user = User.objects.get(pk=request.session["user_id"])
-        except User.DoesNotExist:
-            _logout(request)
-            return redirect("login")
-    else:
-        return redirect("login")
-
-    if not hasattr(user, "staff"):
-        messages.error(request, "Only staff can decline matches.")
-        return redirect("index")
-
-    staff = user.staff
-    if not staff.hospital_id:
-        messages.error(request, "Your staff profile has no hospital assigned.")
-        return redirect("index")
+@require_login
+@require_staff
+def decline_match(request, user, staff, match_id):
+    """Decline a donor match (staff only, verified)"""
 
     match = get_object_or_404(Match, pk=match_id, blood_request__hospital=staff.hospital)
     
@@ -870,3 +905,4 @@ def contact_view(request):
         form = ContactForm()
 
     return render(request, "contact.html", {"form": form})
+
