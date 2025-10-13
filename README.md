@@ -192,8 +192,10 @@ This project is licensed under the MIT License - see the `LICENSE` file for deta
 
 ## 👥 Team
 
-- **Ahmed Alsawwaf** - Project Lead & Developer
-- **Contributors** - See GitHub contributors page
+- **Ahmed Alsawwaf** - Developer
+- **Hala Ghali** - Developer
+- **Yahia Alawi** - Developer
+- **Amira Jarrghon** - Developer
 
 ## 📞 Support
 
