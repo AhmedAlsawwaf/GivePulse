@@ -118,6 +118,23 @@ class User(models.Model):
     def is_superuser(self):
         return self.role == 'admin'
     
+    def natural_key(self):
+        """Required for Django admin interface"""
+        return (self.email,)
+    
+    def set_password(self, raw_password):
+        """Required for Django admin interface"""
+        from .managers import _hash_password_if_needed
+        self.password = _hash_password_if_needed(raw_password)
+        # Only save if the user already has a primary key (is saved)
+        if self.pk:
+            self.save(update_fields=['password', 'updated_at'])
+    
+    def check_password(self, raw_password):
+        """Required for Django admin interface"""
+        from .managers import check_password
+        return check_password(raw_password, self.password)
+    
     def has_perm(self, perm, obj=None):
         return self.role == 'admin'
     

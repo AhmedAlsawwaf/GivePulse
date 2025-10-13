@@ -51,6 +51,10 @@ class UserManager(models.Manager):
             return None
         return user if check_password(password, user.password) else None
 
+    def get_by_natural_key(self, email):
+        """Required for Django admin interface"""
+        return self.get(email=email.lower().strip())
+
 
 class StaffManager(models.Manager):
     def create_staff(self, *, user_id: int, hospital_id: int, role: str = "staff", is_verified: bool = False):
