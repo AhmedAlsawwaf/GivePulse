@@ -2,6 +2,8 @@
 
 A comprehensive Django-based web application for managing blood donation requests, donor matching, and hospital coordination.
 
+🌐 **Live Application**: [http://13.61.22.133](http://13.61.22.133)
+
 ## 🌟 Features
 
 ### For Donors
@@ -53,6 +55,8 @@ A comprehensive Django-based web application for managing blood donation request
    git clone https://github.com/AhmedAlsawwaf/GivePulse.git
    cd GivePulse
    ```
+
+   Or visit the live application: [http://13.61.22.133](http://13.61.22.133)
 
 2. **Create a virtual environment**
    ```bash
@@ -162,14 +166,17 @@ The project includes useful management commands:
 
 ## 🚀 Deployment
 
-The application is ready for deployment with:
+The application is currently deployed and running at: [http://13.61.22.133](http://13.61.22.133)
 
-- **Production Settings**: Configured for production deployment
-- **Static Files**: Proper static file handling
-- **Database Support**: PostgreSQL ready
+### Production Features
+- **AWS EC2 Deployment**: Running on Ubuntu server
+- **Nginx + Gunicorn**: Production-ready web server setup
+- **MySQL Database**: Production database with optimized settings
+- **SSL Ready**: HTTPS configuration available
+- **Static Files**: Optimized static file serving
 - **Environment Variables**: Secure configuration management
 
-See `DEPLOYMENT.md` for detailed deployment instructions.
+See `README_DEPLOYMENT.md` for detailed deployment instructions.
 
 ## 🤝 Contributing
 
@@ -196,13 +203,19 @@ For support and questions:
 
 ## 🔄 Recent Updates
 
-- ✅ Fixed Django admin compatibility issues
-- ✅ Added AJAX functionality for blood request matching
-- ✅ Enhanced admin interface with custom styling
-- ✅ Improved user experience with real-time feedback
-- ✅ Added comprehensive error handling
-- ✅ Optimized static files configuration
-- ✅ Cleaned up codebase and removed unnecessary files
+- ✅ **Live Deployment**: Application successfully deployed to AWS EC2
+- ✅ **Production Ready**: Full production setup with Nginx and Gunicorn
+- ✅ **Database Optimization**: MySQL database with production data
+- ✅ **Security Hardening**: Production security configurations
+- ✅ **Performance Optimization**: Static files and caching configured
+- ✅ **Code Cleanup**: Removed temporary scripts and organized codebase
+- ✅ **Documentation**: Updated README with live application link
+
+## 🎯 Quick Access
+
+- **Live Application**: [http://13.61.22.133](http://13.61.22.133)
+- **Admin Panel**: [http://13.61.22.133/admin/](http://13.61.22.133/admin/)
+- **GitHub Repository**: [https://github.com/AhmedAlsawwaf/GivePulse](https://github.com/AhmedAlsawwaf/GivePulse)
 
 ---
 

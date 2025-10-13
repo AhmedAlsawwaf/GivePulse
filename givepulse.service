@@ -1,0 +1,42 @@
+[Unit]
+Description=GivePulse Gunicorn daemon
+After=network.target mysql.service
+Wants=mysql.service
+
+[Service]
+Type=notify
+User=ubuntu
+Group=www-data
+WorkingDirectory=/var/www/givepulse
+Environment="PATH=/var/www/givepulse/venv/bin"
+Environment="DJANGO_SETTINGS_MODULE=give_pulse.settings_production"
+
+# Gunicorn configuration
+ExecStart=/var/www/givepulse/venv/bin/gunicorn --config /var/www/givepulse/gunicorn.conf.py give_pulse.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+
+# Restart policy
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/givepulse
+ReadWritePaths=/var/log
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=givepulse
+
+[Install]
+WantedBy=multi-user.target
