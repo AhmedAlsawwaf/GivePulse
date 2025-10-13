@@ -167,3 +167,4 @@ echo "  Check service status: sudo systemctl status givepulse"
 echo "  View logs: sudo journalctl -u givepulse -f"
 echo "  Restart services: sudo systemctl restart givepulse nginx"
 echo "  Check Nginx: sudo nginx -t"
+

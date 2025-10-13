@@ -210,3 +210,4 @@ echo
 print_status "To view logs:"
 echo "sudo journalctl -u givepulse -f"
 echo "tail -f /var/www/givepulse/logs/django.log"
+

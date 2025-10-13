@@ -146,3 +146,4 @@ print_warning "Make sure to:"
 print_warning "1. Update your DNS records to point $DOMAIN to 13.61.22.133"
 print_warning "2. Test the SSL certificate: https://www.ssllabs.com/ssltest/"
 print_warning "3. Update any hardcoded HTTP URLs in your application to HTTPS"
+
