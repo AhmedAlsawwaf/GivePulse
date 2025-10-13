@@ -91,16 +91,20 @@
 
       <!-- Footer Actions -->
       <div class="card-footer bg-light text-center py-3">
-        {% if user.donor and blood_request.status == 'open' and not already_matched %}
+        {% if user.donor and not already_matched and blood_request.status == 'open' or blood_request.status == 'partial' %}
           {% if in_cooldown %}
             <div class="alert alert-warning d-inline-flex align-items-center gap-2 mb-0 py-2 px-3">
               <i class="bi bi-clock"></i>
               <span>You are in cooldown until {{ user.donor.cooldown_until|date:"M d, Y H:i" }}</span>
             </div>
           {% elif is_compatible %}
-            <a href="{% url 'match_blood_request' blood_request.id %}" class="btn btn-primary-red px-4">
-              <i class="bi bi-heart me-2"></i> Match This Request
-            </a>
+            <!-- AJAX Match Form -->
+            <form id="match-blood-request-form" data-request-id="{{ blood_request.id }}">
+              {% csrf_token %}
+              <button type="button" id="match-blood-request-btn" class="btn btn-primary-red px-4">
+                <i class="bi bi-heart me-2"></i> Match This Request
+              </button>
+            </form>
           {% else %}
             <div class="alert alert-danger d-inline-flex align-items-center gap-2 mb-0 py-2 px-3">
               <i class="bi bi-x-circle"></i>
@@ -108,10 +112,10 @@
             </div>
           {% endif %}
         {% elif user.donor and already_matched %}
-          <div class="alert alert-info d-inline-flex align-items-center gap-2 mb-0 py-2 px-3">
+          <div class="alert alert-info d-inline-flex align-items-center gap-2 mb-0 py-2 px-3" id="already-matched">
             <i class="bi bi-check-circle"></i> You have already matched this request.
           </div>
-        {% elif user.donor and blood_request.status != 'open' %}
+        {% elif user.donor and blood_request.status != 'open' and blood_request.status != 'partial' %}
           <div class="alert alert-secondary d-inline-flex align-items-center gap-2 mb-0 py-2 px-3">
             <i class="bi bi-lock"></i> This request is no longer open.
           </div>
@@ -120,4 +124,8 @@
     </div>
   </div>
 </section>
+
+{% block extra_js %}
+<script src="{% static 'js/blood_request_matching.js' %}"></script>
+{% endblock %}
 {% endblock %}

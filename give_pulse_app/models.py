@@ -84,6 +84,11 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = UserManager()
+    
+    # Required Django User model attributes
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name']
+    
     class Meta:
         indexes = [
             models.Index(fields=["email"]),
@@ -92,6 +97,32 @@ class User(models.Model):
     
     def __str__(self):
         return f"{self.first_name} {self.last_name} <{self.email}>"
+    
+    @property
+    def is_authenticated(self):
+        return True
+    
+    @property
+    def is_anonymous(self):
+        return False
+    
+    @property
+    def is_active(self):
+        return True
+    
+    @property
+    def is_staff(self):
+        return self.role == 'admin'
+    
+    @property
+    def is_superuser(self):
+        return self.role == 'admin'
+    
+    def has_perm(self, perm, obj=None):
+        return self.role == 'admin'
+    
+    def has_module_perms(self, app_label):
+        return self.role == 'admin'
 
 class Staff(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="staff")

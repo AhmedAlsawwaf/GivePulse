@@ -14,6 +14,7 @@ admin.site.site_header = "GivePulse Admin"
 admin.site.site_title = "GivePulse Admin"
 admin.site.index_title = "Blood Donation Management System"
 
+
 # Override the admin index view to include dashboard statistics
 original_index = admin.site.index
 
@@ -32,6 +33,8 @@ def custom_admin_index(request, extra_context=None):
     
     total_donors = Donor.objects.count()
     total_requests = BloodRequest.objects.count()
+    total_donations = Donation.objects.count()
+    total_lives_saved = total_donations  # Each donation saves one life
     
     # Add statistics to context
     extra_context.update({
@@ -43,6 +46,8 @@ def custom_admin_index(request, extra_context=None):
         'unverified_staff': unverified_staff,
         'total_donors': total_donors,
         'total_requests': total_requests,
+        'total_donations': total_donations,
+        'total_lives_saved': total_lives_saved,
     })
     
     return original_index(request, extra_context)
@@ -130,7 +135,7 @@ class HospitalAdmin(admin.ModelAdmin):
 # User Admin
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['full_name', 'email', 'role', 'phone', 'created_at']
+    list_display = ['email', 'first_name', 'last_name', 'role', 'created_at']
     list_filter = ['role', 'created_at']
     search_fields = ['first_name', 'last_name', 'email']
     ordering = ['-created_at']
@@ -182,9 +187,9 @@ class StaffAdmin(admin.ModelAdmin):
     
     def verification_status(self, obj):
         if obj.is_verified:
-            return format_html('<span class="verification-badge verified">Verified</span>')
+            return format_html('<span class="badge bg-success">Verified</span>')
         else:
-            return format_html('<span class="verification-badge pending">Pending</span>')
+            return format_html('<span class="badge bg-warning text-dark">Pending</span>')
     verification_status.short_description = 'Status'
     
     def request_count(self, obj):

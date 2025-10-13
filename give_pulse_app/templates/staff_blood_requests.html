@@ -28,7 +28,8 @@
       <div class="row">
         {% for request in blood_requests %}
         <div class="col-md-6 col-lg-4 mb-4">
-          <div class="card request-card shadow-sm border-0 rounded-4 animate__animated animate__fadeInUp">
+          <div class="card request-card shadow-sm border-0 rounded-4 animate__animated animate__fadeInUp auto-refresh-requests" 
+               data-request-id="{{ request.id }}">
 
             <!-- Status Header -->
             <div class="card-header border-0 text-white 
@@ -40,20 +41,20 @@
                 <h5 class="fw-semibold mb-0">
                   <i class="bi bi-droplet me-2"></i>{{ request.abo }}{{ request.rh }}
                 </h5>
-                <span class="badge bg-light text-dark">{{ request.status|title }}</span>
+                <span class="badge bg-light text-dark request-status">{{ request.status|title }}</span>
               </div>
             </div>
 
             <!-- Body -->
             <div class="card-body">
-              <p class="mb-1"><strong>Units:</strong> {{ request.units_fulfilled }}/{{ request.units_requested }}</p>
+              <p class="mb-1"><strong>Units:</strong> <span class="units-fulfilled">{{ request.units_fulfilled }}/{{ request.units_requested }}</span></p>
               <p class="mb-1"><strong>City:</strong> {{ request.city.name }}</p>
               <p class="mb-1"><strong>Deadline:</strong> {{ request.deadline_at|date:"M d, Y" }}</p>
               <p class="mb-3"><strong>Created:</strong> {{ request.created_at|date:"M d, Y" }}</p>
 
               {% if request.notes %}
                 <p class="small text-muted fst-italic border-start ps-2">
-                  “{{ request.notes|truncatewords:15 }}”
+                  "{{ request.notes|truncatewords:15 }}"
                 </p>
               {% endif %}
             </div>
@@ -90,4 +91,5 @@
     {% endif %}
   </div>
 </section>
+
 {% endblock %}

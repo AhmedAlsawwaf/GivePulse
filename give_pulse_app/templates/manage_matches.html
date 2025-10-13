@@ -87,7 +87,7 @@
               </thead>
               <tbody>
                 {% for match in matches %}
-                  <tr>
+                  <tr data-match-id="{{ match.id }}" class="auto-refresh-matches">
                     <td>
                       <strong>{{ match.donor.user.first_name }} {{ match.donor.user.last_name }}</strong>
                     </td>
@@ -102,7 +102,7 @@
                         {% endif %}
                       </small>
                     </td>
-                    <td>
+                    <td class="match-status">
                       {% if match.status == 'pending' %}
                         <span class="badge bg-warning text-dark">Pending</span>
                       {% elif match.status == 'accepted' %}
@@ -114,17 +114,13 @@
                       {% endif %}
                     </td>
                     <td><small>{{ match.created_at|date:"M d, Y H:i" }}</small></td>
-                    <td>
+                    <td class="match-actions">
                       {% if match.status == 'pending' %}
                         <div class="btn-group" role="group">
-                          <a href="{% url 'accept_match' match.id %}" 
-                             class="btn btn-sm btn-primary-red"
-                             onclick="return confirm('Accept this match? This will set the donor in cooldown.')">
+                          <a href="{% url 'accept_match' match.id %}" class="btn btn-sm btn-primary-red">
                             <i class="bi bi-check"></i> Accept
                           </a>
-                          <a href="{% url 'decline_match' match.id %}" 
-                             class="btn btn-sm btn-outline-danger"
-                             onclick="return confirm('Decline this match?')">
+                          <a href="{% url 'decline_match' match.id %}" class="btn btn-sm btn-outline-danger">
                             <i class="bi bi-x"></i> Decline
                           </a>
                         </div>
@@ -168,4 +164,5 @@
 
   </div>
 </section>
+
 {% endblock %}
